@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>نظام راشد المحاسبي v5.0</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- ====== Firebase SDK (Compatible) ====== -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* ===== كل CSS ===== */
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root {
+            --primary:#6C2BD9;
+            --primary-light:#8B5CF6;
+            --primary-dark:#4A1A9E;
+            --secondary:#F59E0B;
+            --success:#10B981;
+            --danger:#EF4444;
+            --bg-body:#e8ecf1;
+            --bg-card:#f5f7fa;
+            --text-primary:#1e293b;
+            --text-secondary:#475569;
+            --border-color:#cbd5e1;
+            --shadow:0 4px 20px rgba(0,0,0,0.06);
+            --shadow-lg:0 12px 40px rgba(0,0,0,0.1);
+            --radius:16px;
+            --radius-sm:8px;
+            --radius-lg:24px;
+            --transition:all 0.3s ease;
+            --gray-50:#f8fafc;
+            --gray-100:#f1f5f9;
+            --gray-200:#e2e8f0;
+            --gray-300:#cbd5e1;
+            --gray-400:#94a3b8;
+            --gray-500:#64748b;
+            --gray-600:#475569;
+        }
+        body{font-family:'Segoe UI',Tahoma,system-ui,sans-serif;background:var(--bg-body);min-height:100vh;padding:12px;display:flex;justify-content:center;align-items:flex-start;color:var(--text-primary)}
+        .app-container{max-width:1400px;width:100%;background:var(--bg-card);border-radius:var(--radius-lg);padding:20px 24px 16px;box-shadow:var(--shadow-lg);border:1px solid var(--border-color)}
+        
+        .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid var(--border-color);position:relative}
+        .logo{cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 8px;border-radius:12px;transition:var(--transition)}
+        .logo:hover{background:var(--gray-200)}
+        .logo img{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:2px}
+        .logo h1{font-size:22px;font-weight:800;color:var(--text-primary)}
+        .logo h1 .highlight{background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .logo .subtitle{font-size:12px;color:var(--text-secondary)}
+        .badge-version{display:inline-block;background:var(--success);color:#fff;font-size:8px;font-weight:700;padding:2px 10px;border-radius:40px}
+        
+        .connection-status{position:absolute;left:0;top:0;padding:3px 10px;border-radius:0 0 8px 8px;font-size:9px;font-weight:700}
+        .connection-status.online{background:var(--success);color:#fff}
+        .connection-status.offline{background:var(--danger);color:#fff}
+        .connection-status.syncing{background:var(--secondary);color:#fff;animation:pulse 1s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        
+        .header-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+        .header-actions button{padding:6px 14px;border:none;border-radius:40px;font-size:12px;font-weight:600;cursor:pointer;transition:var(--transition);color:#fff}
+        .header-actions button:hover{transform:scale(1.04)}
+        .btn-login-header{background:var(--primary)}
+        .btn-login-header:hover{background:var(--primary-dark)}
+        .btn-login-header.logged-in{background:var(--success)}
+        .badge-group{display:flex;gap:4px;background:var(--gray-200);padding:3px 10px;border-radius:60px;align-items:center;border:1px solid var(--border-color)}
+        .badge-free{background:var(--success);color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:40px}
+        .badge-premium{background:var(--secondary);color:#fff;font-size:9px;font-weight:700;padding:2px 10px;border-radius:40px;display:none}
+        
+        .tabs-container{display:flex;gap:4px;margin-bottom:20px;border-radius:var(--radius);overflow-x:auto;padding:6px;background:var(--bg-body);border:1px solid var(--border-color);flex-wrap:nowrap;justify-content:space-around}
+        .tabs-container .tab-btn{flex:1;min-width:50px;padding:8px 4px;border:none;background:transparent;color:var(--text-secondary);font-weight:600;font-size:9px;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:var(--radius-sm)}
+        .tabs-container .tab-btn i{font-size:22px;display:block}
+        .tabs-container .tab-btn span:not(.badge){font-size:10px;display:block;text-align:center}
+        .tabs-container .tab-btn:hover{background:var(--gray-200);transform:translateY(-2px)}
+        .tabs-container .tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(108,43,217,0.3)}
+        .tabs-container .tab-btn .badge{background:var(--secondary);color:#fff;font-size:7px;padding:1px 6px;border-radius:40px;margin-top:2px}
+        .tab-content{display:none;animation:fadeIn .3s ease}
+        .tab-content.active{display:block}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        
+        .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+        .dash-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border-color);transition:var(--transition);box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .dash-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+        .dash-card .dash-icon{font-size:22px;margin-bottom:4px}
+        .dash-card .dash-number{font-size:24px;font-weight:800;color:var(--text-primary)}
+        .dash-card .dash-label{font-size:11px;color:var(--text-secondary);margin-top:2px}
+        .dash-card.primary .dash-number{color:var(--primary-light)}
+        .dash-card.success .dash-number{color:var(--success)}
+        .dash-card.warning .dash-number{color:var(--secondary)}
+        .dash-card.danger .dash-number{color:var(--danger)}
+        
+        .recent-section{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+        .recent-box{background:var(--gray-50);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border-color)}
+        .recent-box h4{color:var(--text-primary);margin-bottom:8px;font-size:13px}
+        .recent-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border-color);font-size:12px}
+        .recent-item:last-child{border-bottom:none}
+        .badge-sm{font-size:9px;padding:2px 8px;border-radius:40px;background:var(--gray-300);color:var(--text-primary)}
+        .badge-sm.done{background:var(--success);color:#fff}
+        .badge-sm.pending{background:var(--secondary);color:#fff}
+        
+        .dash-chart{background:var(--gray-50);border-radius:var(--radius-sm);padding:12px 14px;border:1px solid var(--border-color);margin-top:10px}
+        .dash-chart h4{color:var(--text-primary);margin-bottom:8px;font-size:13px;text-align:center}
+        .dash-chart .chart-container{max-height:140px}
+        
+        .progress-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;border:1px solid var(--border-color)}
+        .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+        .progress-header .title{font-size:13px;font-weight:600;color:var(--text-primary)}
+        .progress-header .percentage{font-size:13px;font-weight:700;color:var(--primary-light)}
+        .progress-bar{width:100%;height:5px;background:var(--gray-300);border-radius:40px;overflow:hidden}
+        .progress-bar .fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:40px;transition:width .5s ease;width:0%}
+        
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+        .stat-card{background:var(--gray-50);border-radius:var(--radius);padding:12px 8px;text-align:center;border:1px solid var(--border-color);transition:var(--transition)}
+        .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+        .stat-card .number{font-size:22px;font-weight:800;color:var(--text-primary)}
+        .stat-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+        .stat-card.highlight .number{background:linear-gradient(135deg,var(--secondary),#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        
+        .add-area{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+        .add-area input{flex:1 1 160px;padding:10px 16px;border:2px solid var(--border-color);border-radius:60px;font-size:13px;background:var(--gray-50);outline:none;color:var(--text-primary)}
+        .add-area input:focus{border-color:var(--primary)}
+        .add-area .btn{padding:10px 16px;border:none;border-radius:60px;font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:5px;color:#fff}
+        .add-area .btn:hover{transform:scale(1.03)}
+        .add-area .btn-free{background:var(--gray-500)}
+        .add-area .btn-premium{background:linear-gradient(135deg,var(--secondary),#f97316)}
+        .add-area .btn-repeat{background:linear-gradient(135deg,var(--primary-light),var(--primary))}
+        .add-area .btn-ai{background:linear-gradient(135deg,var(--success),#059669)}
+        
+        .filter-area{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+        .filter-area .filter-btn{padding:5px 12px;border:2px solid var(--border-color);border-radius:40px;background:transparent;color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition)}
+        .filter-area .filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+        
+        .tasks-wrapper{background:var(--gray-50);border-radius:var(--radius);padding:4px 2px;border:1px solid var(--border-color);margin-bottom:12px;max-height:380px;overflow-y:auto}
+        .task-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-color);border-radius:10px;margin:0 4px;transition:var(--transition);background:var(--gray-50);margin-bottom:2px}
+        .task-item:hover{background:var(--gray-100)}
+        .task-item .task-text{font-size:13px;color:var(--text-primary);font-weight:500}
+        .task-item .task-text.done{text-decoration:line-through;color:var(--text-secondary)}
+        .task-tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:40px;background:var(--gray-300);color:var(--text-primary)}
+        .task-tag.premium-tag{background:var(--secondary);color:#fff}
+        .task-tag.repeat-tag{background:var(--primary);color:#fff}
+        .task-tag.ai-tag{background:#059669;color:#fff}
+        .task-actions{display:flex;align-items:center;gap:2px}
+        .task-actions button{background:none;border:none;font-size:15px;cursor:pointer;padding:3px 5px;border-radius:40px;transition:var(--transition);color:var(--text-secondary)}
+        .task-actions button:hover{background:var(--gray-200)}
+        .task-actions .done-btn{color:var(--success)}
+        .task-actions .undo-btn{color:var(--gray-500)}
+        .task-actions .delete-btn{color:var(--danger)}
+        .task-actions .edit-btn{color:var(--primary-light)}
+        .empty-message{padding:24px 16px;text-align:center;color:var(--text-secondary);font-size:13px}
+        
+        .salary-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;border:1px solid var(--border-color);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+        .salary-section .salary-label{font-weight:600;color:var(--text-primary);font-size:13px}
+        .salary-section input{padding:6px 12px;border:2px solid var(--border-color);border-radius:40px;font-size:13px;background:var(--gray-50);outline:none;color:var(--text-primary);width:120px}
+        .salary-section .btn-save-salary{padding:6px 16px;background:var(--primary);color:#fff;border:none;border-radius:40px;font-weight:700;cursor:pointer;font-size:12px}
+        .salary-section .btn-save-salary:hover{background:var(--primary-dark)}
+        
+        .expense-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+        .summary-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;text-align:center;border:1px solid var(--border-color);transition:var(--transition)}
+        .summary-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+        .summary-card .amount{font-size:18px;font-weight:800;color:var(--text-primary)}
+        .summary-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+        .summary-card .icon{font-size:18px;margin-bottom:3px}
+        .summary-card.total .amount{color:var(--primary-light)}
+        .summary-card.today .amount{color:var(--success)}
+        .summary-card.monthly .amount{color:var(--primary-light)}
+        .summary-card.loan .amount{color:var(--secondary)}
+        .summary-card.remain .amount{color:var(--success)}
+        .summary-card.net .amount{color:var(--primary-light)}
+        .summary-card.tax .amount{color:#7C3AED}
+        
+        .add-expense-area{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--gray-50);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-color)}
+        .add-expense-area input,.add-expense-area select{padding:8px 12px;border:2px solid var(--border-color);border-radius:40px;font-size:13px;background:var(--gray-50);outline:none;color:var(--text-primary)}
+        .add-expense-area input:focus,.add-expense-area select:focus{border-color:var(--primary)}
+        .add-expense-area input[type="text"]{flex:2 1 130px}
+        .add-expense-area input[type="number"]{flex:1 1 80px}
+        .add-expense-area select{flex:1 1 90px}
+        .add-expense-area input[type="date"]{flex:1 1 120px}
+        .add-expense-area input[type="file"]{flex:1 1 100px;padding:4px 12px}
+        .add-expense-area .preview-image{max-width:50px;max-height:50px;border-radius:8px;display:none}
+        
+        .btn-expense{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:60px;font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition);color:#fff}
+        .btn-expense:hover{transform:scale(1.04)}
+        .btn-expense.btn-add{background:linear-gradient(135deg,var(--success),#059669)}
+        .btn-expense.btn-loan{background:linear-gradient(135deg,var(--secondary),#f97316)}
+        .btn-expense.btn-tax{background:linear-gradient(135deg,#7C3AED,#6D28D9)}
+        .btn-expense.btn-budget{background:linear-gradient(135deg,#3B82F6,#1D4ED8)}
+        
+        .expense-filter-area{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+        .expense-filter-area .filter-btn{padding:5px 12px;border:2px solid var(--border-color);border-radius:40px;background:transparent;color:var(--text-secondary);font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition)}
+        .expense-filter-area .filter-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+        
+        .expense-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border-color);border-radius:10px;transition:var(--transition);flex-wrap:wrap;gap:4px;background:var(--gray-50);margin-bottom:4px;border:1px solid var(--border-color)}
+        .expense-item:hover{background:var(--gray-100)}
+        .expense-item .expense-info{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap}
+        .expense-item .expense-image{width:35px;height:35px;border-radius:8px;object-fit:cover}
+        .expense-category{font-size:9px;font-weight:700;padding:2px 8px;border-radius:40px;background:var(--gray-300);color:var(--text-primary)}
+        .expense-category.loan{background:var(--secondary);color:#fff}
+        .expense-category.tax{background:#7C3AED;color:#fff}
+        .expense-amount{font-weight:700;font-size:14px;color:var(--text-primary)}
+        .expense-amount.loan-amount{color:var(--secondary)}
+        .expense-amount.tax-amount{color:#7C3AED}
+        .expense-date{font-size:10px;color:var(--text-secondary)}
+        .expense-actions{display:flex;gap:3px}
+        .expense-actions button{background:none;border:none;font-size:14px;cursor:pointer;padding:3px 5px;border-radius:40px;transition:var(--transition);color:var(--text-secondary)}
+        .expense-actions button:hover{background:var(--gray-200)}
+        .expense-actions .delete-expense{color:var(--danger)}
+        .expense-actions .delete-expense:hover{background:var(--danger);color:#fff}
+        .expense-actions .toggle-paid{color:var(--success)}
+        .expense-actions .toggle-paid:hover{background:var(--success);color:#fff}
+        .expense-paid-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:40px;background:var(--success);color:#fff}
+        .expense-paid-badge.unpaid{background:var(--secondary);color:#fff}
+        
+        .debt-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+        .debt-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;text-align:center;border:1px solid var(--border-color);transition:var(--transition)}
+        .debt-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+        .debt-card .number{font-size:18px;font-weight:800;color:var(--text-primary)}
+        .debt-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+        .debt-card .icon{font-size:18px;margin-bottom:3px}
+        .debt-card.danger .number{color:var(--danger)}
+        .debt-card.success .number{color:var(--success)}
+        .debt-card.warning .number{color:var(--secondary)}
+        
+        .add-debt-area{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--gray-50);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border-color)}
+        .add-debt-area input,.add-debt-area select{padding:8px 12px;border:2px solid var(--border-color);border-radius:40px;font-size:13px;background:var(--gray-50);outline:none;color:var(--text-primary)}
+        .add-debt-area input:focus,.add-debt-area select:focus{border-color:var(--primary)}
+        .add-debt-area input[type="text"]{flex:2 1 130px}
+        .add-debt-area input[type="number"]{flex:1 1 80px}
+        .add-debt-area input[type="date"]{flex:1 1 100px}
+        .add-debt-area .btn-add-debt{padding:8px 16px;background:linear-gradient(135deg,var(--danger),#b91c1c);color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;font-size:12px}
+        .add-debt-area .btn-add-debt:hover{transform:scale(1.03)}
+        
+        .debt-item{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border-color);border-radius:10px;transition:var(--transition);flex-wrap:wrap;gap:4px;background:var(--gray-50);margin-bottom:4px;border:1px solid var(--border-color)}
+        .debt-item:hover{background:var(--gray-100)}
+        .debt-item .debt-info{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap}
+        .debt-item .debt-name{font-weight:600;color:var(--text-primary);font-size:13px}
+        .debt-item .debt-amount{font-weight:700;font-size:14px;color:var(--danger)}
+        .debt-item .debt-paid{font-size:12px;color:var(--success)}
+        .debt-item .debt-remaining{font-size:12px;font-weight:700;color:var(--danger)}
+        .debt-item .debt-date{font-size:10px;color:var(--text-secondary)}
+        .debt-item .debt-status{font-size:9px;font-weight:700;padding:2px 8px;border-radius:40px;background:var(--secondary);color:#fff}
+        .debt-item .debt-status.paid{background:var(--success);color:#fff}
+        .debt-item .debt-status.overdue{background:var(--danger);color:#fff}
+        .debt-item .debt-actions{display:flex;gap:3px}
+        .debt-item .debt-actions button{background:none;border:none;font-size:14px;cursor:pointer;padding:3px 5px;border-radius:40px;transition:var(--transition);color:var(--text-secondary)}
+        .debt-item .debt-actions button:hover{background:var(--gray-200)}
+        .debt-item .debt-actions .pay-debt{color:var(--success)}
+        .debt-item .debt-actions .pay-debt:hover{background:var(--success);color:#fff}
+        .debt-item .debt-actions .delete-debt{color:var(--danger)}
+        .debt-item .debt-actions .delete-debt:hover{background:var(--danger);color:#fff}
+        
+        .report-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:2px solid var(--border-color);transition:var(--transition);margin-bottom:12px}
+        .report-section:hover{box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+        .report-section h3{color:var(--text-primary);margin-bottom:8px;font-size:15px;display:flex;align-items:center;gap:6px}
+        .report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px}
+        .report-item{text-align:center;padding:8px 6px;background:var(--gray-50);border-radius:var(--radius-sm);transition:var(--transition);border:1px solid var(--border-color)}
+        .report-item:hover{transform:translateY(-2px);border-color:var(--primary)}
+        .report-item .value{font-size:16px;font-weight:800;color:var(--text-primary)}
+        .report-item .value.positive{color:var(--success)}
+        .report-item .value.negative{color:var(--danger)}
+        .report-item .value.warning{color:var(--secondary)}
+        .report-item .value.primary{color:var(--primary-light)}
+        .report-item .label{font-size:9px;color:var(--text-secondary);margin-top:2px}
+        
+        .trial-balance-table{width:100%;border-collapse:collapse;background:var(--gray-50);border-radius:var(--radius-sm);overflow:hidden;font-size:12px}
+        .trial-balance-table th{background:var(--gray-200);color:var(--text-primary);padding:6px 10px;text-align:right;font-size:11px;font-weight:700}
+        .trial-balance-table td{padding:5px 10px;border-bottom:1px solid var(--border-color);font-size:11px;color:var(--text-primary)}
+        .trial-balance-table .total-row{background:var(--gray-200);font-weight:700}
+        .trial-balance-table .debit{color:var(--danger)}
+        .trial-balance-table .credit{color:var(--success)}
+        
+        .loan-system-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:2px solid var(--secondary);margin-bottom:12px}
+        .loan-system-section h3{color:var(--secondary);margin-bottom:8px;display:flex;align-items:center;gap:6px;font-size:15px}
+        .loan-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;padding:10px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--border-color)}
+        .loan-flow .step{display:flex;flex-direction:column;align-items:center;padding:5px 10px;border-radius:var(--radius-sm);background:var(--gray-50);border:2px solid var(--border-color);min-width:60px}
+        .loan-flow .step.active{border-color:var(--secondary);background:var(--gray-200)}
+        .loan-flow .step .step-icon{font-size:18px}
+        .loan-flow .step .step-label{font-size:9px;font-weight:600;color:var(--text-secondary);margin-top:2px}
+        .loan-flow .step .step-value{font-size:12px;font-weight:700;color:var(--text-primary)}
+        .loan-flow .arrow{font-size:18px;color:var(--text-secondary)}
+        
+        .tax-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:2px solid #7C3AED;margin-bottom:12px}
+        .tax-section h3{color:#7C3AED;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-size:15px}
+        .tax-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+        .tax-card{text-align:center;padding:10px;background:var(--gray-50);border-radius:var(--radius-sm);border:1px solid var(--border-color)}
+        .tax-card .number{font-size:18px;font-weight:800;color:var(--text-primary)}
+        .tax-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+        .tax-card .number.tax-color{color:#7C3AED}
+        
+        .budget-section{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:2px solid #3B82F6;margin-bottom:12px}
+        .budget-section h3{color:#3B82F6;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-size:15px}
+        .budget-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+        .budget-card{background:var(--gray-50);border-radius:var(--radius-sm);padding:10px;border:1px solid var(--border-color);text-align:center}
+        .budget-card .category{font-weight:600;color:var(--text-primary);font-size:13px}
+        .budget-card .percent{font-size:18px;font-weight:800;color:var(--primary-light)}
+        .budget-card .amount{font-size:12px;color:var(--text-secondary);margin-top:3px}
+        .budget-card .bar{width:100%;height:4px;background:var(--gray-200);border-radius:40px;margin-top:5px;overflow:hidden}
+        .budget-card .bar .fill{height:100%;border-radius:40px;transition:width .5s ease}
+        
+        .ai-insights{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px 16px;border:2px solid var(--success);margin-bottom:12px}
+        .ai-insights h3{color:var(--success);margin-bottom:8px;display:flex;align-items:center;gap:6px;font-size:15px}
+        .ai-insights .insight-item{background:var(--gray-50);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:6px;border-right:4px solid var(--primary-light);display:flex;align-items:center;gap:8px}
+        .ai-insights .insight-item .icon{font-size:18px}
+        .ai-insights .insight-item .text{flex:1;font-size:12px;color:var(--text-primary)}
+        .ai-insights .insight-item.positive{border-right-color:var(--success)}
+        .ai-insights .insight-item.warning{border-right-color:var(--secondary)}
+        .ai-insights .insight-item.danger{border-right-color:var(--danger)}
+        
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(3px);z-index:1000;justify-content:center;align-items:center}
+        .modal-overlay.active{display:flex!important}
+        .modal-box{background:var(--bg-card);border-radius:var(--radius-lg);padding:24px 20px;max-width:460px;width:92%;box-shadow:var(--shadow-lg);animation:modalIn .3s ease;max-height:90vh;overflow-y:auto;border:1px solid var(--border-color);color:var(--text-primary)}
+        @keyframes modalIn{from{transform:scale(.95) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+        .modal-box h2{font-size:19px;color:var(--text-primary);margin-bottom:4px}
+        .modal-box .sub{color:var(--text-secondary);font-size:12px;margin-bottom:14px}
+        .modal-box .btn-close-modal{width:100%;padding:8px;background:transparent;border:2px solid var(--border-color);color:var(--text-secondary);font-size:13px;cursor:pointer;margin-top:8px;border-radius:40px;transition:var(--transition)}
+        .modal-box .btn-close-modal:hover{border-color:var(--primary);color:var(--text-primary);background:var(--gray-50)}
+        .modal-box .form-group{margin-bottom:10px}
+        .modal-box .form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+        .modal-box .form-group input,.modal-box .form-group select{width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:var(--radius-sm);font-size:13px;transition:var(--transition);outline:none;background:var(--gray-50);color:var(--text-primary)}
+        .modal-box .form-group input:focus,.modal-box .form-group select:focus{border-color:var(--primary)}
+        
+        .payment-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border:none;border-radius:60px;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);width:100%;color:#fff}
+        .payment-btn:hover{transform:scale(1.02)}
+        .payment-btn.instapay{background:linear-gradient(135deg,var(--primary),var(--primary-light))}
+        .payment-btn.vodafone{background:linear-gradient(135deg,#E20000,#C00000)}
+        .payment-btn.confirm{background:linear-gradient(135deg,var(--success),#059669)}
+        
+        .price-display{text-align:center;margin-bottom:4px}
+        .price-display .price-tag{font-size:26px;font-weight:800;color:var(--secondary)}
+        .price-display .price-note{font-size:11px;color:var(--text-secondary)}
+        
+        .pay-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(3px);z-index:1500;justify-content:center;align-items:center}
+        .pay-overlay.active{display:flex}
+        .pay-box{background:var(--bg-card);border-radius:var(--radius-lg);padding:20px;max-width:340px;width:92%;box-shadow:var(--shadow-lg);animation:modalIn .3s ease;text-align:center;border:1px solid var(--border-color);color:var(--text-primary)}
+        .pay-box h2{font-size:17px;color:var(--text-primary);margin-bottom:3px}
+        .pay-box .sub{color:var(--text-secondary);font-size:12px;margin-bottom:12px}
+        .pay-box input{width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:var(--radius-sm);font-size:15px;text-align:center;background:var(--gray-50);color:var(--text-primary);outline:none;transition:var(--transition);margin-bottom:8px}
+        .pay-box input:focus{border-color:var(--primary)}
+        .pay-box .pay-actions{display:flex;gap:6px;justify-content:center}
+        .pay-box .pay-actions .btn-pay{background:var(--success);color:#fff;padding:6px 20px;border:none;border-radius:40px;font-weight:700;font-size:12px;cursor:pointer;transition:var(--transition)}
+        .pay-box .pay-actions .btn-pay:hover{transform:scale(1.04)}
+        .pay-box .pay-actions .btn-cancel-pay{background:var(--gray-200);color:var(--text-primary);padding:6px 20px;border:none;border-radius:40px;font-weight:700;font-size:12px;cursor:pointer;transition:var(--transition)}
+        .pay-box .pay-actions .btn-cancel-pay:hover{background:var(--gray-300)}
+        
+        .login-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);backdrop-filter:blur(3px);z-index:1001;justify-content:center;align-items:center}
+        .login-overlay.active{display:flex}
+        .login-box{background:var(--bg-card);border-radius:var(--radius-lg);padding:20px;max-width:400px;width:92%;box-shadow:var(--shadow-lg);animation:modalIn .3s ease;border:1px solid var(--border-color);color:var(--text-primary)}
+        .login-box h2{font-size:19px;color:var(--text-primary);margin-bottom:3px}
+        .login-box .sub{color:var(--text-secondary);font-size:12px;margin-bottom:14px}
+        .login-box .tabs{display:flex;gap:0;margin-bottom:14px;border-radius:var(--radius-sm);overflow:hidden;border:2px solid var(--border-color)}
+        .login-box .tabs button{flex:1;padding:6px;border:none;background:var(--gray-100);color:var(--text-secondary);font-weight:700;font-size:12px;cursor:pointer;transition:var(--transition)}
+        .login-box .tabs button.active{background:var(--primary);color:#fff}
+        .login-box .form-group{margin-bottom:10px}
+        .login-box .form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:3px}
+        .login-box .form-group input,.login-box .form-group select{width:100%;padding:8px 12px;border:2px solid var(--border-color);border-radius:var(--radius-sm);font-size:13px;transition:var(--transition);outline:none;background:var(--gray-50);color:var(--text-primary)}
+        .login-box .form-group input:focus,.login-box .form-group select:focus{border-color:var(--primary)}
+        .login-box .btn-login-action{width:100%;padding:8px;border:none;border-radius:60px;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);margin-top:3px;color:#fff}
+        .login-box .btn-login-action.primary{background:var(--primary)}
+        .login-box .btn-login-action.primary:hover{background:var(--primary-dark)}
+        .login-box .btn-login-action.success{background:var(--success)}
+        .login-box .btn-login-action.success:hover{background:#059669}
+        .login-box .btn-login-action.danger{background:var(--danger)}
+        .login-box .btn-login-action.danger:hover{background:#b91c1c}
+        .login-box .btn-close-login{width:100%;padding:6px;background:transparent;border:2px solid var(--border-color);color:var(--text-secondary);font-size:12px;cursor:pointer;margin-top:3px;border-radius:40px;transition:var(--transition)}
+        .login-box .btn-close-login:hover{border-color:var(--primary);color:var(--text-primary)}
+        .login-box .user-info{text-align:center;padding:8px;background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:10px;border:1px solid var(--border-color)}
+        .login-box .user-info .name{font-size:15px;font-weight:700;color:var(--text-primary)}
+        .login-box .user-info .email{font-size:12px;color:var(--text-secondary)}
+        .login-box .message{text-align:center;padding:6px;border-radius:var(--radius-sm);margin-bottom:8px;display:none;font-weight:600;font-size:12px}
+        .login-box .message.success{display:block;background:var(--success);color:#fff}
+        .login-box .message.error{display:block;background:var(--danger);color:#fff}
+        
+        .notification{position:fixed;top:15px;right:15px;z-index:2000;background:var(--bg-card);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow-lg);border-right:4px solid var(--primary);display:flex;align-items:center;gap:10px;max-width:360px;animation:slideIn .4s ease;border:1px solid var(--border-color);color:var(--text-primary)}
+        .notification.success{border-right-color:var(--success)}
+        .notification.error{border-right-color:var(--danger)}
+        .notification.warning{border-right-color:var(--secondary)}
+        @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+        .notification button{background:none;border:none;font-size:15px;cursor:pointer;color:var(--text-secondary);padding:3px}
+        
+        .footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--text-secondary);border-top:1px solid var(--border-color);padding-top:12px;margin-top:4px}
+        .footer .btn-upgrade{background:linear-gradient(135deg,var(--secondary),#f97316);color:#fff;padding:5px 16px;border-radius:60px;border:none;font-weight:700;font-size:11px;cursor:pointer;transition:var(--transition)}
+        .footer .btn-upgrade:hover{transform:scale(1.04)}
+        .footer .btn-export{background:var(--gray-200);color:var(--text-primary);padding:5px 12px;border-radius:60px;border:none;font-weight:600;font-size:11px;cursor:pointer;transition:var(--transition)}
+        .footer .btn-export:hover{transform:scale(1.04);background:var(--gray-300)}
+        .footer .btn-export-excel{background:linear-gradient(135deg,var(--success),#059669);color:#fff;padding:5px 12px;border-radius:60px;border:none;font-weight:600;font-size:11px;cursor:pointer;transition:var(--transition)}
+        .footer .btn-export-excel:hover{transform:scale(1.04)}
+        .footer .btn-clear{background:var(--danger);color:#fff;padding:5px 12px;border-radius:60px;border:none;font-weight:600;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:3px;transition:var(--transition)}
+        .footer .btn-clear:hover{transform:scale(1.04);background:#b91c1c}
+        
+        .admin-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+        .admin-map-container{background:var(--gray-50);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--border-color);margin-bottom:14px;min-height:200px}
+        .admin-map-container #map{width:100%;height:200px;border-radius:var(--radius-sm);background:var(--gray-200);display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;overflow:hidden}
+        .admin-map-container #map .map-placeholder{font-size:13px;color:var(--text-secondary);text-align:center}
+        .admin-map-container #map .map-placeholder i{font-size:48px;display:block;margin-bottom:10px;color:var(--primary-light)}
+        .admin-map-container .map-dots{position:absolute;width:100%;height:100%}
+        .map-dot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--primary);border:2px solid #fff;box-shadow:0 0 10px rgba(108,43,217,0.5);animation:pulse-dot 2s infinite;cursor:pointer;transition:var(--transition)}
+        .map-dot:hover{transform:scale(1.5)}
+        .map-dot .tooltip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--bg-card);padding:4px 8px;border-radius:4px;font-size:10px;white-space:nowrap;border:1px solid var(--border-color);color:var(--text-primary)}
+        .map-dot:hover .tooltip{display:block}
+        @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:0.7}}
+        
+        .country-badge{display:inline-block;padding:3px 10px;border-radius:40px;background:var(--gray-200);color:var(--text-primary);font-size:10px;font-weight:600;margin:2px}
+        .country-badge .count{background:var(--primary);color:#fff;border-radius:40px;padding:0 6px;margin-right:3px}
+        
+        .activity-log{max-height:200px;overflow-y:auto;font-size:11px}
+        .activity-item{padding:4px 8px;border-bottom:1px solid var(--border-color);display:flex;justify-content:space-between;color:var(--text-secondary)}
+        .activity-item .time{color:var(--text-secondary);font-size:10px}
+        
+        @media(max-width:992px){.app-container{padding:14px 12px}.stats-grid{grid-template-columns:1fr 1fr}.dashboard-grid{grid-template-columns:1fr 1fr}.recent-section{grid-template-columns:1fr}}
+        @media(max-width:768px){.app-container{padding:10px 8px;border-radius:var(--radius)}.header{flex-direction:column;align-items:flex-start}.header-actions{width:100%;justify-content:flex-start}.tabs-container .tab-btn{padding:5px 3px}.tabs-container .tab-btn i{font-size:18px}.tabs-container .tab-btn span:not(.badge){font-size:8px}.stats-grid{grid-template-columns:1fr 1fr}.expense-summary{grid-template-columns:1fr 1fr}.debt-summary{grid-template-columns:1fr 1fr}.report-grid{grid-template-columns:1fr 1fr}.add-area .btn{font-size:11px;padding:6px 12px}.add-expense-area{flex-direction:column}.add-expense-area input,.add-expense-area select,.add-expense-area input[type="date"],.add-expense-area .btn-expense{width:100%}.add-debt-area{flex-direction:column}.add-debt-area input,.add-debt-area select,.add-debt-area .btn-add-debt{width:100%}.salary-section{flex-direction:column;align-items:stretch}.salary-section input{width:100%}.loan-flow{flex-direction:column}.loan-flow .arrow{transform:rotate(90deg)}.footer{flex-direction:column;align-items:stretch}.trial-balance-table{font-size:10px}.trial-balance-table th,.trial-balance-table td{padding:3px 6px}.notification{top:10px;right:10px;left:10px;max-width:none}.admin-stats-grid{grid-template-columns:1fr 1fr}}
+        @media(max-width:480px){.dashboard-grid{grid-template-columns:1fr 1fr}.stats-grid{grid-template-columns:1fr 1fr}.expense-summary{grid-template-columns:1fr 1fr}.debt-summary{grid-template-columns:1fr 1fr}.report-grid{grid-template-columns:1fr}.tax-grid{grid-template-columns:1fr 1fr}.budget-grid{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+
+<div class="app-container" id="appContainer">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo" id="logoClick" title="اضغط 5 مرات لفتح لوحة التحكم">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%236C2BD9'/%3E%3Ctext x='50' y='68' font-size='48' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3ERR%3C/text%3E%3C/svg%3E" alt="شعار راشد" />
+            <div>
+                <h1>✅ <span class="highlight">نظام راشد المحاسبي</span></h1>
+                <div class="subtitle">
+                    <span class="badge-version">v5.0</span>
+                    💎 بواسطة: <strong>Rashed Rabia</strong>
+                    <span style="margin-right:6px;">· سحابة · مزامنة</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-login-header" id="loginBtnHeader">👤 تسجيل الدخول</button>
+            <div class="badge-group">
+                <span class="badge-free" id="badgeFree">مجاني</span>
+                <span class="badge-premium" id="badgePremium">بريميوم</span>
+            </div>
+        </div>
+        <div class="connection-status online" id="connectionStatus">🟢 متصل</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+        <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-home"></i> <span>الرئيسية</span></button>
+        <button class="tab-btn" data-tab="tasks"><i class="fas fa-tasks"></i> <span>المهام</span> <span class="badge" id="tasksBadge">0</span></button>
+        <button class="tab-btn" data-tab="expenses"><i class="fas fa-wallet"></i> <span>المصاريف</span> <span class="badge" id="expensesBadge">0</span></button>
+        <button class="tab-btn" data-tab="debts"><i class="fas fa-hand-holding-usd"></i> <span>المديونيات</span> <span class="badge" id="debtsBadge">0</span></button>
+        <button class="tab-btn" data-tab="budget"><i class="fas fa-chart-pie"></i> <span>الميزانية</span> <span class="badge" style="background:#3B82F6;">ذكي</span></button>
+        <button class="tab-btn" data-tab="tax"><i class="fas fa-percent"></i> <span>الضرائب</span> <span class="badge" style="background:#7C3AED;">جديد</span></button>
+        <button class="tab-btn" data-tab="accounting"><i class="fas fa-balance-scale"></i> <span>المحاسبة</span> <span class="badge" style="background:var(--secondary);">متقدم</span></button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="tab-content active" id="tab-dashboard">
+        <div class="dashboard-grid">
+            <div class="dash-card primary"><div class="dash-icon">📋</div><div class="dash-number" id="dashTotalTasks">0</div><div class="dash-label">إجمالي المهام</div></div>
+            <div class="dash-card success"><div class="dash-icon">✅</div><div class="dash-number" id="dashDoneTasks">0</div><div class="dash-label">المهام المنجزة</div></div>
+            <div class="dash-card warning"><div class="dash-icon">💰</div><div class="dash-number" id="dashTotalExp">0</div><div class="dash-label">إجمالي المصاريف</div></div>
+            <div class="dash-card danger"><div class="dash-icon">💳</div><div class="dash-number" id="dashTotalDebts">0</div><div class="dash-label">إجمالي المديونيات</div></div>
+            <div class="dash-card" style="border-color:#8B5CF6;"><div class="dash-icon">📊</div><div class="dash-number" id="dashNetWorth" style="color:#8B5CF6;">0</div><div class="dash-label">صافي الثروة</div></div>
+            <div class="dash-card" style="border-color:#7C3AED;"><div class="dash-icon">🧾</div><div class="dash-number" id="dashTotalTax" style="color:#7C3AED;">0</div><div class="dash-label">إجمالي الضرائب</div></div>
+        </div>
+        
+        <div class="ai-insights">
+            <h3><i class="fas fa-robot"></i> تحليلات الذكاء الاصطناعي</h3>
+            <div id="aiInsightsContainer">
+                <div class="insight-item"><span class="icon">🤖</span><span class="text">جاري تحليل بياناتك...</span></div>
+            </div>
+        </div>
+        
+        <div class="recent-section">
+            <div class="recent-box"><h4>📌 آخر المهام</h4><div id="recentTasks"><div style="color:var(--text-secondary);font-size:12px;">لا توجد مهام</div></div></div>
+            <div class="recent-box"><h4>💰 آخر المصاريف</h4><div id="recentExpenses"><div style="color:var(--text-secondary);font-size:12px;">لا توجد مصاريف</div></div></div>
+        </div>
+        <div class="dash-chart"><h4>📊 مصاريف آخر 7 أيام</h4><div class="chart-container"><canvas id="dashChart"></canvas></div></div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="tab-content" id="tab-tasks">
+        <div class="progress-section">
+            <div class="progress-header"><span class="title">📊 تقدم اليوم</span><span class="percentage" id="progressPercentage">0%</span></div>
+            <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card highlight"><div class="number" id="premiumCount">0</div><div class="label">⭐ بريميوم</div></div>
+            <div class="stat-card"><div class="number" id="doneCount">0</div><div class="label">✅ منجزة</div></div>
+            <div class="stat-card"><div class="number" id="totalCount">0</div><div class="label">📋 إجمالي</div></div>
+            <div class="stat-card"><div class="number" id="repeatCount">0</div><div class="label">🔄 متكررة</div></div>
+        </div>
+        <div class="add-area">
+            <input type="text" id="taskInput" placeholder="اكتب مهمة جديدة..." />
+            <button class="btn btn-free" id="addFreeBtn"><i class="fas fa-plus"></i> مجانية</button>
+            <button class="btn btn-premium" id="addPremiumBtn"><i class="fas fa-star"></i> بريميوم</button>
+            <button class="btn btn-repeat" id="addRepeatBtn"><i class="fas fa-sync"></i> متكررة</button>
+            <button class="btn btn-ai" id="aiFreeBtn"><i class="fas fa-robot"></i> AI</button>
+        </div>
+        <div class="filter-area">
+            <button class="filter-btn active" data-filter="all">📋 الكل</button>
+            <button class="filter-btn" data-filter="active">⏳ قيد التنفيذ</button>
+            <button class="filter-btn" data-filter="done">✅ منجزة</button>
+            <button class="filter-btn" data-filter="premium">⭐ بريميوم</button>
+        </div>
+        <div class="tasks-wrapper" id="tasksWrapper"><div class="empty-message">🚀 أضف أول مهمة لك الآن!</div></div>
+    </div>
+
+    <!-- EXPENSES -->
+    <div class="tab-content" id="tab-expenses">
+        <div class="salary-section">
+            <span class="salary-label">💰 الراتب الشهري:</span>
+            <input type="number" id="salaryInput" placeholder="أدخل راتبك" step="0.5" />
+            <button class="btn-save-salary" id="saveSalaryBtn">💾 حفظ</button>
+            <span style="color:var(--text-secondary);font-size:12px;" id="salaryDisplay"></span>
+        </div>
+        <div class="expense-summary">
+            <div class="summary-card total"><div class="icon">💰</div><div class="amount" id="totalExpenses">0 ج.م</div><div class="label">إجمالي المصاريف</div></div>
+            <div class="summary-card today"><div class="icon">📅</div><div class="amount" id="todayExpenses">0 ج.م</div><div class="label">مصاريف اليوم</div></div>
+            <div class="summary-card monthly"><div class="icon">📆</div><div class="amount" id="monthlyExpenses">0 ج.م</div><div class="label">مصاريف الشهر</div></div>
+            <div class="summary-card loan"><div class="icon">💳</div><div class="amount" id="totalLoans">0 ج.م</div><div class="label">إجمالي السلف</div></div>
+            <div class="summary-card remain"><div class="icon">💵</div><div class="amount" id="remainAmount">0 ج.م</div><div class="label">المتبقي من الراتب</div></div>
+            <div class="summary-card net"><div class="icon">📊</div><div class="amount" id="netRemainAmount">0 ج.م</div><div class="label">الصافي النهائي</div></div>
+            <div class="summary-card tax"><div class="icon">🧾</div><div class="amount" id="totalTaxAmount">0 ج.م</div><div class="label">إجمالي الضرائب</div></div>
+        </div>
+        
+        <div class="add-expense-area">
+            <input type="text" id="expenseDesc" placeholder="📝 وصف المصروف..." />
+            <input type="number" id="expenseAmount" placeholder="💰 المبلغ" step="0.5" />
+            <select id="expenseCategory">
+                <option value="food">🍽️ أكل وشرب</option>
+                <option value="transport">🚗 مواصلات</option>
+                <option value="bills">💡 فواتير</option>
+                <option value="shopping">🛒 مشتريات</option>
+                <option value="rent">🏠 إيجار</option>
+                <option value="health">🏥 صحة</option>
+                <option value="education">📚 تعليم</option>
+                <option value="other">📦 أخرى</option>
+            </select>
+            <select id="expenseType">
+                <option value="daily">📅 يومي</option>
+                <option value="monthly">📆 شهري</option>
+                <option value="fixed">🔒 ثابت</option>
+                <option value="repeating">🔄 متكرر</option>
+            </select>
+            <input type="date" id="expenseDate" />
+            <input type="file" id="expenseImage" accept="image/*" />
+            <img id="expenseImagePreview" class="preview-image" />
+            <button class="btn-expense btn-add" id="addExpenseBtn"><i class="fas fa-plus"></i> أضف</button>
+            <button class="btn-expense btn-loan" id="addLoanBtn"><i class="fas fa-hand-holding-usd"></i> سلفة</button>
+            <button class="btn-expense btn-tax" id="addTaxBtn"><i class="fas fa-percent"></i> ضريبة</button>
+            <button class="btn-expense btn-budget" id="smartBudgetBtn"><i class="fas fa-chart-pie"></i> ميزانية</button>
+        </div>
+        
+        <div class="expense-filter-area">
+            <button class="filter-btn active" data-filter="all">📋 الكل</button>
+            <button class="filter-btn" data-filter="daily">📅 يومي</button>
+            <button class="filter-btn" data-filter="monthly">📆 شهري</button>
+            <button class="filter-btn" data-filter="fixed">🔒 ثابت</button>
+            <button class="filter-btn" data-filter="repeating">🔄 متكرر</button>
+            <button class="filter-btn" data-filter="paid">✅ مدفوع</button>
+            <button class="filter-btn" data-filter="unpaid">⏳ غير مدفوع</button>
+            <button class="filter-btn" data-filter="loan">💳 سلف</button>
+            <button class="filter-btn" data-filter="tax">🧾 ضريبة</button>
+        </div>
+        <div class="tasks-wrapper" id="expensesWrapper" style="max-height:380px;"><div class="empty-message">💰 لا توجد مصاريف مسجلة</div></div>
+    </div>
+
+    <!-- DEBTS -->
+    <div class="tab-content" id="tab-debts">
+        <div class="debt-summary">
+            <div class="debt-card danger"><div class="icon">💳</div><div class="number" id="totalDebts">0 ج.م</div><div class="label">إجمالي المديونيات</div></div>
+            <div class="debt-card success"><div class="icon">✅</div><div class="number" id="totalPaidDebts">0 ج.م</div><div class="label">المدفوع</div></div>
+            <div class="debt-card warning"><div class="icon">📊</div><div class="number" id="totalRemainingDebts">0 ج.م</div><div class="label">المتبقي</div></div>
+        </div>
+        <div class="add-debt-area">
+            <input type="text" id="debtDesc" placeholder="وصف المديونية..." />
+            <input type="number" id="debtAmount" placeholder="المبلغ الكلي" step="0.5" />
+            <input type="date" id="debtDueDate" />
+            <select id="debtType">
+                <option value="personal">👤 شخصية</option>
+                <option value="bank">🏦 بنك</option>
+                <option value="friend">🤝 صديق</option>
+                <option value="other">📦 أخرى</option>
+            </select>
+            <button class="btn-add-debt" id="addDebtBtn"><i class="fas fa-plus"></i> أضف مديونية</button>
+        </div>
+        <div class="tasks-wrapper" id="debtsWrapper" style="max-height:420px;"><div class="empty-message">💰 لا توجد مديونيات مسجلة</div></div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="tab-content" id="tab-budget">
+        <h2 style="color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:20px;">
+            <span>📊</span>
+            <span>الميزانية الشهرية الذكية</span>
+            <span style="font-size:10px;background:#3B82F6;color:#fff;padding:2px 12px;border-radius:40px;font-weight:700;">AI</span>
+        </h2>
+        
+        <div class="budget-section">
+            <h3><i class="fas fa-sliders-h"></i> توزيع الميزانية الذكي</h3>
+            <p style="color:var(--text-secondary);font-size:12px;margin-bottom:10px;">يتم توزيع الميزانية تلقائياً بناءً على راتبك واحتياجاتك</p>
+            <div class="budget-grid" id="budgetGrid">
+                <div class="budget-card"><div class="category">🍽️ الطعام</div><div class="percent" id="budgetFood">0%</div><div class="amount" id="budgetFoodAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetFoodBar" style="width:0%;background:#10B981;"></div></div></div>
+                <div class="budget-card"><div class="category">🏠 السكن</div><div class="percent" id="budgetRent">0%</div><div class="amount" id="budgetRentAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetRentBar" style="width:0%;background:#3B82F6;"></div></div></div>
+                <div class="budget-card"><div class="category">🚗 المواصلات</div><div class="percent" id="budgetTransport">0%</div><div class="amount" id="budgetTransportAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetTransportBar" style="width:0%;background:#F59E0B;"></div></div></div>
+                <div class="budget-card"><div class="category">💰 التوفير</div><div class="percent" id="budgetSaving">0%</div><div class="amount" id="budgetSavingAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetSavingBar" style="width:0%;background:#8B5CF6;"></div></div></div>
+                <div class="budget-card"><div class="category">🎮 الترفيه</div><div class="percent" id="budgetEntertainment">0%</div><div class="amount" id="budgetEntertainmentAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetEntertainmentBar" style="width:0%;background:#EC4899;"></div></div></div>
+                <div class="budget-card"><div class="category">📦 أخرى</div><div class="percent" id="budgetOther">0%</div><div class="amount" id="budgetOtherAmount">0 ج.م</div><div class="bar"><div class="fill" id="budgetOtherBar" style="width:0%;background:#6B7280;"></div></div></div>
+            </div>
+        </div>
+        
+        <div class="ai-insights">
+            <h3><i class="fas fa-lightbulb"></i> نصائح ذكية للميزانية</h3>
+            <div id="budgetTips">
+                <div class="insight-item positive"><span class="icon">💡</span><span class="text">قم بتخصيص 20% من راتبك للتوفير أولاً</span></div>
+                <div class="insight-item warning"><span class="icon">⚠️</span><span class="text">حاول تقليل مصاريف الطعام إلى 30% من راتبك</span></div>
+            </div>
+        </div>
+        
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button onclick="generateSmartBudget()" style="padding:8px 20px;background:linear-gradient(135deg,#3B82F6,#1D4ED8);color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:12px;">
+                🤖 توليد ميزانية ذكية
+            </button>
+            <button onclick="resetBudget()" style="padding:8px 20px;background:var(--gray-200);color:var(--text-primary);border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:12px;">
+                🔄 إعادة تعيين
+            </button>
+        </div>
+    </div>
+
+    <!-- TAX -->
+    <div class="tab-content" id="tab-tax">
+        <h2 style="color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:20px;">
+            <span>🧾</span>
+            <span>نظام الضرائب المتكامل</span>
+            <span style="font-size:10px;background:#7C3AED;color:#fff;padding:2px 12px;border-radius:40px;font-weight:700;">جديد</span>
+        </h2>
+        <div class="tax-section">
+            <h3>📊 ملخص الضرائب</h3>
+            <div class="tax-grid">
+                <div class="tax-card"><div class="number tax-color" id="taxTotalPaid">0 ج.م</div><div class="label">إجمالي الضرائب المسددة</div></div>
+                <div class="tax-card"><div class="number" id="taxTotalDue" style="color:var(--danger);">0 ج.م</div><div class="label">الضرائب المستحقة</div></div>
+                <div class="tax-card"><div class="number" id="taxTotalVAT" style="color:var(--secondary);">0 ج.م</div><div class="label">ضريبة القيمة المضافة (14%)</div></div>
+                <div class="tax-card"><div class="number" id="taxTotalIncome" style="color:var(--primary-light);">0 ج.م</div><div class="label">ضريبة الدخل</div></div>
+            </div>
+        </div>
+        <div class="report-section" style="border-color:#7C3AED;">
+            <h3 style="color:#7C3AED;">⚙️ إعدادات الضرائب</h3>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <label style="font-weight:600;color:var(--text-primary);font-size:12px;">نسبة ضريبة القيمة المضافة:</label>
+                <input type="number" id="vatRate" value="14" step="0.5" min="0" max="100" style="width:70px;padding:5px 10px;border:2px solid var(--border-color);border-radius:40px;background:var(--gray-50);color:var(--text-primary);outline:none;font-size:12px;" />
+                <span style="color:var(--text-secondary);font-size:12px;">%</span>
+                <button class="btn-save-salary" id="saveVatBtn" style="background:#7C3AED;color:#fff;font-size:11px;padding:5px 14px;">💾 حفظ النسبة</button>
+            </div>
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-expense btn-tax" onclick="openTaxModal()" style="padding:8px 16px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:11px;">
+                    🧾 تسجيل ضريبة جديدة
+                </button>
+                <button class="btn-expense btn-tax" onclick="payAllTaxes()" style="padding:8px 16px;background:linear-gradient(135deg,var(--success),#059669);color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:11px;">
+                    ✅ سداد ضريبة
+                </button>
+            </div>
+        </div>
+        <div class="report-section" style="border-color:var(--border-color);">
+            <h3>📋 سجل الضرائب</h3>
+            <div class="tasks-wrapper" id="taxWrapper" style="max-height:320px;"><div class="empty-message">🧾 لا توجد ضرائب مسجلة</div></div>
+        </div>
+    </div>
+
+    <!-- ACCOUNTING -->
+    <div class="tab-content" id="tab-accounting">
+        <h2 style="color:var(--text-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:20px;">
+            <span>📊</span>
+            <span>نظام المحاسبة المتكامل</span>
+            <span style="font-size:10px;background:var(--primary);color:#fff;padding:2px 12px;border-radius:40px;font-weight:700;">Pro</span>
+        </h2>
+        
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <button onclick="exportReport('pdf')" style="padding:6px 14px;background:#EF4444;color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;"><i class="fas fa-file-pdf"></i> PDF</button>
+            <button onclick="exportReport('excel')" style="padding:6px 14px;background:#10B981;color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;"><i class="fas fa-file-excel"></i> Excel</button>
+            <button onclick="exportReport('csv')" style="padding:6px 14px;background:#3B82F6;color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;"><i class="fas fa-file-csv"></i> CSV</button>
+            <button onclick="exportReport('json')" style="padding:6px 14px;background:#8B5CF6;color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;"><i class="fas fa-file-code"></i> JSON</button>
+        </div>
+        
+        <div class="report-section" style="border-color:var(--primary);">
+            <h3 style="color:var(--primary-light);">📋 ميزان المراجعة</h3>
+            <div style="overflow-x:auto;">
+                <table class="trial-balance-table" id="trialBalanceTable">
+                    <thead><tr><th>#</th><th>اسم الحساب</th><th>النوع</th><th style="color:#ef4444;">مدين</th><th style="color:#22c55e;">دائن</th></tr></thead>
+                    <tbody id="trialBalanceBody"><tr><td colspan="5" style="text-align:center;padding:14px;color:var(--text-secondary);">📭 جاري تحميل البيانات...</td></tr></tbody>
+                    <tfoot id="trialBalanceFooter"></tfoot>
+                </table>
+            </div>
+            <div id="trialBalanceStatus" style="text-align:center;padding:4px;margin-top:4px;border-radius:var(--radius-sm);font-weight:700;font-size:12px;"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="report-section" style="border-color:var(--success);">
+                <h3 style="color:var(--success);">💰 قائمة الدخل</h3>
+                <div class="report-grid">
+                    <div class="report-item"><div class="value positive" id="incomeRevenue">0 ج.م</div><div class="label">الإيرادات</div></div>
+                    <div class="report-item"><div class="value negative" id="incomeExpenses">0 ج.م</div><div class="label">المصروفات</div></div>
+                    <div class="report-item"><div class="value" id="incomeNetProfit">0 ج.م</div><div class="label">صافي الأرباح</div></div>
+                </div>
+            </div>
+            <div class="report-section" style="border-color:var(--primary-light);">
+                <h3 style="color:var(--primary-light);">🏦 الميزانية العمومية</h3>
+                <div class="report-grid">
+                    <div class="report-item"><div class="value primary" id="balanceAssets">0 ج.م</div><div class="label">الأصول</div></div>
+                    <div class="report-item"><div class="value negative" id="balanceLiabilities">0 ج.م</div><div class="label">الخصوم</div></div>
+                    <div class="report-item"><div class="value positive" id="balanceEquity">0 ج.م</div><div class="label">حقوق الملكية</div></div>
+                </div>
+                <div id="balanceCheck" style="text-align:center;padding:4px;margin-top:4px;border-radius:var(--radius-sm);font-weight:700;font-size:12px;"></div>
+            </div>
+        </div>
+        <div class="loan-system-section">
+            <h3>💳 نظام السلفة - التدفق</h3>
+            <div class="loan-flow">
+                <div class="step" id="loanStep1"><span class="step-icon">🏦</span><span class="step-label">إجمالي السلف</span><span class="step-value" id="loanTotal">0 ج.م</span></div>
+                <span class="arrow">➜</span>
+                <div class="step" id="loanStep2"><span class="step-icon">💰</span><span class="step-label">المصروفات من السلفة</span><span class="step-value" id="loanUsed">0 ج.م</span></div>
+                <span class="arrow">➜</span>
+                <div class="step" id="loanStep3"><span class="step-icon">📊</span><span class="step-label">المتبقي من السلفة</span><span class="step-value" id="loanRemaining">0 ج.م</span></div>
+                <span class="arrow">➜</span>
+                <div class="step" id="loanStep4"><span class="step-icon">💵</span><span class="step-label">الخصم من المرتب</span><span class="step-value" id="loanDeducted">0 ج.م</span></div>
+            </div>
+            <div id="loanStatusText" style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-secondary);"></div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="left-section">
+            <span>📦 <span id="planLabel">نسخة مجانية</span></span>
+            <span id="userDisplay" style="font-weight:600;">👤 زائر</span>
+            <span style="font-size:9px;opacity:0.5;">© Rashed Rabia 2026</span>
+        </div>
+        <div class="right-section">
+            <button class="btn-clear" id="clearDataBtn">🧹 مسح</button>
+            <button class="btn-export" id="exportPdfBtn">📥 PDF</button>
+            <button class="btn-export-excel" id="exportExcelBtn">📊 Excel</button>
+            <button class="btn-upgrade" id="upgradeBtn">🌟 ترقية</button>
+        </div>
+    </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="modal-overlay" id="adminPanel">
+    <div class="modal-box" style="max-width:800px;width:95%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <h2 style="color:var(--primary-light);font-size:20px;">🛡️ لوحة تحكم المدير</h2>
+            <button onclick="closeAdminPanel()" style="background:none;border:none;color:var(--text-secondary);font-size:24px;cursor:pointer;">✖</button>
+        </div>
+        <div class="admin-stats-grid">
+            <div class="stat-card"><div class="number" id="adminTotalUsers">0</div><div class="label">👥 إجمالي المستخدمين</div></div>
+            <div class="stat-card"><div class="number" id="adminPremiumUsers">0</div><div class="label">⭐ المستخدمين المميزين</div></div>
+            <div class="stat-card"><div class="number" id="adminTotalTasks">0</div><div class="label">📋 إجمالي المهام</div></div>
+            <div class="stat-card"><div class="number" id="adminTotalExpenses">0</div><div class="label">💰 إجمالي المصاريف</div></div>
+        </div>
+        <div class="admin-map-container">
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">🌍 خريطة توزيع المستخدمين</div>
+            <div id="map" style="width:100%;height:200px;border-radius:var(--radius-sm);background:var(--gray-200);position:relative;overflow:hidden;">
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <i class="fas fa-globe-africa"></i>
+                    <div style="font-size:13px;color:var(--text-secondary);">خريطة توزيع المستخدمين حسب المحافظة</div>
+                    <div id="countryStats" style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:8px;"></div>
+                </div>
+                <div class="map-dots" id="mapDots"></div>
+            </div>
+        </div>
+        <h3 style="color:var(--text-primary);margin-bottom:8px;font-size:14px;">👤 المستخدمين المسجلين</h3>
+        <div style="max-height:200px;overflow-y:auto;border:1px solid var(--border-color);border-radius:var(--radius-sm);">
+            <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <thead><tr style="background:var(--gray-200);">
+                    <th style="padding:4px 6px;text-align:right;">#</th>
+                    <th style="padding:4px 6px;text-align:right;">الاسم</th>
+                    <th style="padding:4px 6px;text-align:right;">البريد</th>
+                    <th style="padding:4px 6px;text-align:right;">المحافظة</th>
+                    <th style="padding:4px 6px;text-align:right;">الحالة</th>
+                    <th style="padding:4px 6px;text-align:right;">الإجراء</th>
+                </tr></thead>
+                <tbody id="adminUsersTable"><tr><td colspan="6" style="text-align:center;padding:16px;color:var(--text-secondary);">📭 لا يوجد مستخدمين</td></tr></tbody>
+            </table>
+        </div>
+        <h3 style="color:var(--text-primary);margin:10px 0 6px;font-size:14px;">📋 سجل النشاطات</h3>
+        <div class="activity-log" id="activityLog"><div style="text-align:center;padding:10px;color:var(--text-secondary);font-size:12px;">لا توجد نشاطات مسجلة</div></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+            <button onclick="refreshAdminPanel()" style="padding:6px 16px;background:var(--primary);color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;">🔄 تحديث</button>
+            <button onclick="exportAdminData()" style="padding:6px 16px;background:var(--success);color:#fff;border:none;border-radius:40px;font-weight:600;cursor:pointer;font-size:11px;">📥 تصدير البيانات</button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="loginModal">
+    <div class="login-box">
+        <h2 id="loginTitle">👤 تسجيل الدخول</h2>
+        <p class="sub" id="loginSub">سجل الدخول للمزامنة بين الأجهزة</p>
+        <div id="loginMessage" class="message" style="display:none;"></div>
+        <div class="tabs">
+            <button class="active" id="loginTabBtn" onclick="switchLoginTab('login')">🔑 تسجيل دخول</button>
+            <button id="registerTabBtn" onclick="switchLoginTab('register')">📝 إنشاء حساب</button>
+        </div>
+        <div id="loginForm">
+            <div class="form-group"><label>📧 البريد الإلكتروني</label><input type="email" id="loginEmail" placeholder="أدخل بريدك" /></div>
+            <div class="form-group"><label>🔑 كلمة المرور</label><input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" /></div>
+            <button class="btn-login-action primary" id="loginConfirmBtn">🚀 تسجيل الدخول</button>
+        </div>
+        <div id="registerForm" style="display:none;">
+            <div class="form-group"><label>👤 الاسم الكامل</label><input type="text" id="registerName" placeholder="أدخل اسمك الكامل" /></div>
+            <div class="form-group"><label>📧 البريد الإلكتروني</label><input type="email" id="registerEmail" placeholder="أدخل بريدك" /></div>
+            <div class="form-group"><label>📱 رقم الموبايل</label><input type="tel" id="registerPhone" placeholder="مثال: 01012345678" /></div>
+            <div class="form-group"><label>📍 المحافظة</label>
+                <select id="registerRegion">
+                    <option value="القاهرة">القاهرة</option>
+                    <option value="الجيزة">الجيزة</option>
+                    <option value="الإسكندرية">الإسكندرية</option>
+                    <option value="شبرا الخيمة">شبرا الخيمة</option>
+                    <option value="المنصورة">المنصورة</option>
+                    <option value="طنطا">طنطا</option>
+                    <option value="أسيوط">أسيوط</option>
+                    <option value="الزقازيق">الزقازيق</option>
+                    <option value="الإسماعيلية">الإسماعيلية</option>
+                    <option value="السويس">السويس</option>
+                    <option value="بورسعيد">بورسعيد</option>
+                    <option value="الأقصر">الأقصر</option>
+                    <option value="أسوان">أسوان</option>
+                    <option value="الغردقة">الغردقة</option>
+                    <option value="شرم الشيخ">شرم الشيخ</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+            <div class="form-group"><label>🔑 كلمة المرور</label><input type="password" id="registerPassword" placeholder="أدخل كلمة المرور (6 أحرف)" /></div>
+            <div class="form-group"><label>🔑 تأكيد كلمة المرور</label><input type="password" id="registerPasswordConfirm" placeholder="أعد كتابة كلمة المرور" /></div>
+            <button class="btn-login-action success" id="registerConfirmBtn">📝 إنشاء حساب</button>
+        </div>
+        <div id="userInfo" style="display:none;">
+            <div class="user-info">
+                <div class="name" id="displayName"></div>
+                <div class="email" id="displayEmail"></div>
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:3px;" id="displayRegion"></div>
+            </div>
+            <button class="btn-login-action danger" id="logoutBtn">🚪 تسجيل الخروج</button>
+        </div>
+        <button class="btn-close-login" id="closeLoginBtn">✖ إغلاق</button>
+    </div>
+</div>
+
+<!-- TAX MODAL -->
+<div class="modal-overlay" id="taxModal">
+    <div class="modal-box">
+        <h2>🧾 تسجيل ضريبة جديدة</h2>
+        <p class="sub">أدخل بيانات الضريبة</p>
+        <div class="form-group"><label>📝 وصف الضريبة</label><input type="text" id="taxDescInput" placeholder="مثال: ضريبة قيمة مضافة - يوليو 2026" /></div>
+        <div class="form-group"><label>💰 المبلغ</label><input type="number" id="taxAmountInput" placeholder="المبلغ..." step="0.5" /></div>
+        <div class="form-group"><label>📅 التاريخ</label><input type="date" id="taxDateInput" /></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onclick="saveTaxRecord()" style="flex:1;padding:10px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:13px;">💾 حفظ الضريبة</button>
+            <button onclick="document.getElementById('taxModal').classList.remove('active')" style="flex:1;padding:10px;background:var(--gray-200);color:var(--text-primary);border:none;border-radius:60px;font-weight:700;cursor:pointer;font-size:13px;">✖ إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgradeModal">
+    <div class="modal-box">
+        <h2>🚀 ترقية إلى البريميوم</h2>
+        <p class="sub">افتح الإمكانيات الكاملة!</p>
+        <ul style="list-style:none;margin-bottom:14px;">
+            <li style="padding:5px 0;border-bottom:1px solid var(--border-color);font-size:13px;">✅ مهام غير محدودة</li>
+            <li style="padding:5px 0;border-bottom:1px solid var(--border-color);font-size:13px;">🔄 مهام متكررة</li>
+            <li style="padding:5px 0;border-bottom:1px solid var(--border-color);font-size:13px;">🤖 AI Pro غير محدود</li>
+            <li style="padding:5px 0;border-bottom:1px solid var(--border-color);font-size:13px;">☁️ تخزين سحابي</li>
+            <li style="padding:5px 0;font-size:13px;">💰 تقارير محاسبية كاملة</li>
+        </ul>
+        <div class="price-display"><div class="price-tag">299 ج.م</div><div class="price-note">شهرياً</div></div>
+        <button class="btn-close-modal" id="closeModalBtn">ربما لاحقاً</button>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// 🔥 إعدادات Firebase - باستخدام بياناتك الجديدة
+// ============================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyAY7w1e22ZTkL6Pxnspa5P_n_5OpGfhoto",
+    authDomain: "rashed-integrated-accounting.firebaseapp.com",
+    databaseURL: "https://rashed-integrated-accounting-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "rashed-integrated-accounting",
+    storageBucket: "rashed-integrated-accounting.firebasestorage.app",
+    messagingSenderId: "72670140499",
+    appId: "1:72670140499:web:1f973a473680c13bfccea6",
+    measurementId: "G-MKBG2SVH6L"
+};
+
+// ============================================================
+// ☁️ تهيئة Firebase
+// ============================================================
+let firebaseInitialized = false;
+let auth = null;
+let realtimeDB = null;
+
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    realtimeDB = firebase.database();
+    firebaseInitialized = true;
+    console.log('✅ Firebase initialized successfully');
+    console.log('📁 Project:', firebaseConfig.projectId);
+} catch(e) {
+    console.warn('⚠️ Firebase error:', e.message);
+    firebaseInitialized = false;
+    showNotification('⚠️ تنبيه', 'يعمل التطبيق في وضع غير متصل', 'warning');
+}
+
+// ============================================================
+// 💾 التخزين المحلي
+// ============================================================
+let tasks = [], expenses = [], debts = [], taxes = [];
+let idCounter = 0, expenseIdCounter = 0, debtIdCounter = 0, taxIdCounter = 0;
+let isPremium = false, currentUser = null, currentFilter = 'all';
+let salary = 0, vatRate = 14, dashChartInstance = null;
+let activityLog = [], adminClickCount = 0, adminTimeout = null;
+let isSyncing = false;
+
+function loadFromLocal() {
+    try {
+        const saved = localStorage.getItem('smartTaskData');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            tasks = parsed.tasks || [];
+            expenses = parsed.expenses || [];
+            debts = parsed.debts || [];
+            taxes = parsed.taxes || [];
+            idCounter = parsed.idCounter || 0;
+            expenseIdCounter = parsed.expenseIdCounter || 0;
+            debtIdCounter = parsed.debtIdCounter || 0;
+            taxIdCounter = parsed.taxIdCounter || 0;
+            isPremium = parsed.isPremium || false;
+            salary = parsed.salary || 0;
+            vatRate = parsed.vatRate || 14;
+            document.getElementById('salaryInput').value = salary || '';
+            document.getElementById('vatRate').value = vatRate;
+            if (isPremium) {
+                document.getElementById('badgeFree').style.display = 'none';
+                document.getElementById('badgePremium').style.display = 'inline-block';
+            }
+            return true;
+        }
+        return false;
+    } catch(e) { return false; }
+}
+
+function saveToLocal() {
+    try {
+        const data = { tasks, expenses, debts, taxes, idCounter, expenseIdCounter, debtIdCounter, taxIdCounter,
+            isPremium, salary, vatRate, updatedAt: new Date().toISOString() };
+        localStorage.setItem('smartTaskData', JSON.stringify(data));
+        localStorage.setItem('activityLog', JSON.stringify(activityLog));
+        return true;
+    } catch(e) { return false; }
+}
+
+// ============================================================
+// ☁️ المزامنة مع السحابة - شغالة 100%
+// ============================================================
+async function syncToCloud() {
+    if (!firebaseInitialized || !currentUser || !navigator.onLine) {
+        console.log('⏳ Skipping sync: not connected');
+        return;
+    }
+    if (isSyncing) return;
+    
+    try {
+        isSyncing = true;
+        document.getElementById('connectionStatus').className = 'connection-status syncing';
+        document.getElementById('connectionStatus').textContent = '🔄 مزامنة...';
+        
+        const userData = {
+            tasks: tasks,
+            expenses: expenses,
+            debts: debts,
+            taxes: taxes,
+            salary: salary,
+            isPremium: isPremium,
+            vatRate: vatRate,
+            idCounter: idCounter,
+            expenseIdCounter: expenseIdCounter,
+            debtIdCounter: debtIdCounter,
+            taxIdCounter: taxIdCounter,
+            displayName: currentUser.displayName || currentUser.email,
+            updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+        
+        await realtimeDB.ref('users/' + currentUser.uid).set(userData);
+        
+        document.getElementById('connectionStatus').className = 'connection-status online';
+        document.getElementById('connectionStatus').textContent = '🟢 متصل';
+        isSyncing = false;
+        console.log('✅ Synced to cloud successfully');
+        return true;
+    } catch(error) {
+        console.error('❌ Sync error:', error);
+        document.getElementById('connectionStatus').className = 'connection-status offline';
+        document.getElementById('connectionStatus').textContent = '🔴 غير متصل';
+        isSyncing = false;
+        return false;
+    }
+}
+
+async function loadFromCloud() {
+    if (!firebaseInitialized || !currentUser || !navigator.onLine) return false;
+    
+    try {
+        document.getElementById('connectionStatus').className = 'connection-status syncing';
+        document.getElementById('connectionStatus').textContent = '🔄 تحميل...';
+        
+        const snapshot = await realtimeDB.ref('users/' + currentUser.uid).once('value');
+        const data = snapshot.val();
+        
+        if (data) {
+            tasks = data.tasks || [];
+            expenses = data.expenses || [];
+            debts = data.debts || [];
+            taxes = data.taxes || [];
+            idCounter = data.idCounter || 0;
+            expenseIdCounter = data.expenseIdCounter || 0;
+            debtIdCounter = data.debtIdCounter || 0;
+            taxIdCounter = data.taxIdCounter || 0;
+            salary = data.salary || 0;
+            isPremium = data.isPremium || false;
+            vatRate = data.vatRate || 14;
+            saveToLocal();
+            console.log('✅ Loaded from cloud successfully');
+            document.getElementById('connectionStatus').className = 'connection-status online';
+            document.getElementById('connectionStatus').textContent = '🟢 متصل';
+            return true;
+        }
+        document.getElementById('connectionStatus').className = 'connection-status online';
+        document.getElementById('connectionStatus').textContent = '🟢 متصل';
+        return false;
+    } catch(error) {
+        console.error('❌ Load error:', error);
+        document.getElementById('connectionStatus').className = 'connection-status offline';
+        document.getElementById('connectionStatus').textContent = '🔴 غير متصل';
+        return false;
+    }
+}
+
+// ============================================================
+// 👤 إدارة المستخدمين
+// ============================================================
+function getUsers() {
+    try {
+        const data = localStorage.getItem('app_users');
+        return data ? JSON.parse(data) : {};
+    } catch(e) { return {}; }
+}
+
+function saveUsers(users) {
+    localStorage.setItem('app_users', JSON.stringify(users));
+}
+
+function getCurrentUser() {
+    try {
+        const data = localStorage.getItem('app_current_user');
+        return data ? JSON.parse(data) : null;
+    } catch(e) { return null; }
+}
+
+function setCurrentUser(user) {
+    if (user) localStorage.setItem('app_current_user', JSON.stringify(user));
+    else localStorage.removeItem('app_current_user');
+}
+
+// ============================================================
+// 🔔 الإشعارات
+// ============================================================
+function showNotification(title, message, type = 'info') {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+    const notif = document.createElement('div');
+    notif.className = `notification ${type}`;
+    const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+    notif.innerHTML = `<span style="font-size:18px;">${icons[type] || 'ℹ️'}</span><div><div style="font-weight:700;font-size:13px;">${title}</div><div style="font-size:11px;color:var(--text-secondary);">${message}</div></div><button onclick="this.parentElement.remove()">✖</button>`;
+    document.body.appendChild(notif);
+    setTimeout(() => { if(notif.parentElement) notif.remove(); }, 4500);
+}
+
+// ============================================================
+// 📋 سجل النشاطات
+// ============================================================
+function logActivity(action, details = '') {
+    const entry = {
+        time: new Date().toISOString(),
+        user: currentUser ? currentUser.displayName || currentUser.email : 'زائر',
+        action: action,
+        details: details
+    };
+    activityLog.unshift(entry);
+    if (activityLog.length > 500) activityLog = activityLog.slice(0, 500);
+    localStorage.setItem('activityLog', JSON.stringify(activityLog));
+}
+
+// ============================================================
+// 🔐 تسجيل الدخول مع Firebase
+// ============================================================
+async function loginUser() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const msg = document.getElementById('loginMessage');
+    
+    if (!email || !password) {
+        msg.textContent = '⚠️ من فضلك أدخل البريد وكلمة المرور';
+        msg.className = 'message error';
+        return;
+    }
+    
+    // محاولة تسجيل الدخول عبر Firebase
+    if (firebaseInitialized && navigator.onLine) {
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            await loadFromCloud();
+            const users = getUsers();
+            const userData = users[email] || {};
+            currentUser = {
+                uid: user.uid,
+                email: email,
+                displayName: userData.name || email,
+                phone: userData.phone || '',
+                region: userData.region || 'غير محدد',
+                isPremium: userData.isPremium || false
+            };
+            setCurrentUser(currentUser);
+            updateUserUI();
+            document.getElementById('loginModal').classList.remove('active');
+            renderAll();
+            logActivity('✅ تسجيل دخول (سحابة)', currentUser.displayName);
+            showNotification('👤 مرحباً', `أهلاً بك ${currentUser.displayName}`, 'success');
+            refreshAdminPanel();
+            return;
+        } catch(error) {
+            console.warn('⚠️ Firebase login failed:', error.message);
+        }
+    }
+    
+    // تسجيل الدخول محلياً (بدون سحابة)
+    const users = getUsers();
+    if (!users[email]) {
+        msg.textContent = '❌ هذا البريد غير مسجل - أنشئ حساباً أولاً';
+        msg.className = 'message error';
+        return;
+    }
+    if (users[email].password !== password) {
+        logActivity('❌ محاولة دخول فاشلة', email);
+        msg.textContent = '❌ كلمة المرور غير صحيحة';
+        msg.className = 'message error';
+        return;
+    }
+    
+    currentUser = {
+        uid: 'local_' + Date.now(),
+        email: email,
+        displayName: users[email].name || email,
+        phone: users[email].phone || '',
+        region: users[email].region || 'غير محدد',
+        isPremium: users[email].isPremium || false
+    };
+    setCurrentUser(currentUser);
+    updateUserUI();
+    document.getElementById('loginModal').classList.remove('active');
+    loadFromLocal();
+    renderAll();
+    logActivity('✅ تسجيل دخول (محلي)', currentUser.displayName);
+    showNotification('👤 مرحباً', `أهلاً بك ${currentUser.displayName} (محلي)`, 'success');
+    refreshAdminPanel();
+}
+
+async function registerUser() {
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value.trim();
+    const confirm = document.getElementById('registerPasswordConfirm').value.trim();
+    const region = document.getElementById('registerRegion').value;
+    const msg = document.getElementById('loginMessage');
+    
+    if (!name || !email || !password || !confirm) {
+        msg.textContent = '⚠️ املأ جميع الحقول';
+        msg.className = 'message error';
+        return;
+    }
+    if (password.length < 6) {
+        msg.textContent = '⚠️ كلمة المرور 6 أحرف على الأقل';
+        msg.className = 'message error';
+        return;
+    }
+    if (password !== confirm) {
+        msg.textContent = '⚠️ كلمة المرور غير متطابقة';
+        msg.className = 'message error';
+        return;
+    }
+    
+    // محاولة التسجيل عبر Firebase
+    if (firebaseInitialized && navigator.onLine) {
+        try {
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            await user.updateProfile({ displayName: name });
+            
+            const users = getUsers();
+            users[email] = { 
+                name, 
+                password, 
+                phone: document.getElementById('registerPhone').value || '',
+                region: region || 'غير محدد',
+                isPremium: false 
+            };
+            saveUsers(users);
+            
+            await realtimeDB.ref('users/' + user.uid).set({
+                name, 
+                email, 
+                region: region || 'غير محدد',
+                phone: document.getElementById('registerPhone').value || '',
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            msg.textContent = `✅ تم إنشاء الحساب بنجاح!`;
+            msg.className = 'message success';
+            logActivity('📝 تسجيل حساب جديد (سحابة)', name + ' - ' + region);
+            
+            setTimeout(() => {
+                switchLoginTab('login');
+                document.getElementById('loginEmail').value = email;
+                document.getElementById('loginPassword').value = password;
+            }, 1000);
+            return;
+        } catch(error) {
+            console.warn('⚠️ Firebase register failed:', error.message);
+        }
+    }
+    
+    // التسجيل محلياً
+    const users = getUsers();
+    if (users[email]) {
+        msg.textContent = '❌ هذا البريد مسجل بالفعل';
+        msg.className = 'message error';
+        return;
+    }
+    users[email] = {
+        name, 
+        password,
+        phone: document.getElementById('registerPhone').value || '',
+        region: region || 'غير محدد',
+        isPremium: false,
+        createdAt: new Date().toISOString()
+    };
+    saveUsers(users);
+    logActivity('📝 تسجيل حساب جديد (محلي)', name + ' - ' + region);
+    msg.textContent = `✅ تم إنشاء الحساب بنجاح! (محلي)`;
+    msg.className = 'message success';
+    setTimeout(() => {
+        switchLoginTab('login');
+        document.getElementById('loginEmail').value = email;
+        document.getElementById('loginPassword').value = password;
+    }, 1000);
+}
+
+function logoutUser() {
+    if (confirm('⚠️ هل أنت متأكد من تسجيل الخروج؟')) {
+        logActivity('🚪 تسجيل خروج', currentUser ? currentUser.displayName : '');
+        if (firebaseInitialized && auth) {
+            auth.signOut().catch(() => {});
+        }
+        setCurrentUser(null);
+        currentUser = null;
+        updateUserUI();
+        document.getElementById('loginModal').classList.remove('active');
+        renderAll();
+        showNotification('👋 مع السلامة', 'تم تسجيل الخروج', 'info');
+    }
+}
+
+// ============================================================
+// 🛡️ لوحة تحكم المدير (مختصرة)
+// ============================================================
+function openAdminPanel() {
+    document.getElementById('adminPanel').classList.add('active');
+    refreshAdminPanel();
+}
+
+function closeAdminPanel() {
+    document.getElementById('adminPanel').classList.remove('active');
+}
+
+function refreshAdminPanel() {
+    const users = getUsers();
+    const userKeys = Object.keys(users);
+    document.getElementById('adminTotalUsers').textContent = userKeys.length;
+    document.getElementById('adminPremiumUsers').textContent = userKeys.filter(email => users[email].isPremium === true).length;
+    document.getElementById('adminTotalTasks').textContent = tasks.length;
+    document.getElementById('adminTotalExpenses').textContent = expenses.length;
+    
+    const table = document.getElementById('adminUsersTable');
+    if (userKeys.length === 0) {
+        table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--text-secondary);">📭 لا يوجد مستخدمين</td></tr>';
+    } else {
+        table.innerHTML = userKeys.map((email, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${users[email].name || email}</strong></td>
+                <td style="font-size:10px;color:var(--text-secondary);">${email}</td>
+                <td>📍 ${users[email].region || 'غير محدد'}</td>
+                <td><span class="badge-sm ${users[email].isPremium ? 'done' : 'pending'}">${users[email].isPremium ? '⭐ بريميوم' : '📋 مجاني'}</span></td>
+                <td>
+                    <button onclick="toggleUserPremium('${email}')" style="padding:2px 8px;background:${users[email].isPremium ? 'var(--danger)' : 'var(--success)'};color:#fff;border:none;border-radius:40px;font-size:9px;cursor:pointer;">
+                        ${users[email].isPremium ? 'إلغاء' : 'تفعيل'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    renderUserMap();
+    renderActivityLog();
+}
+
+function toggleUserPremium(email) {
+    const users = getUsers();
+    if (users[email]) {
+        users[email].isPremium = !users[email].isPremium;
+        saveUsers(users);
+        refreshAdminPanel();
+        showNotification('✅ تم التحديث', `${users[email].isPremium ? 'تفعيل' : 'إلغاء'} البريميوم لـ ${email}`, 'success');
+    }
+}
+
+function renderActivityLog() {
+    const container = document.getElementById('activityLog');
+    const logs = activityLog;
+    if (logs.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:10px;color:var(--text-secondary);font-size:12px;">لا توجد نشاطات مسجلة</div>';
+        return;
+    }
+    container.innerHTML = logs.slice(0, 50).map(log => `
+        <div class="activity-item">
+            <span>${log.action} ${log.details ? '- ' + log.details : ''}</span>
+            <span class="time">${new Date(log.time).toLocaleString('ar-EG')}</span>
+        </div>
+    `).join('');
+}
+
+function renderUserMap() {
+    const users = getUsers();
+    const regions = {};
+    Object.keys(users).forEach(email => {
+        const region = users[email].region || 'غير محدد';
+        regions[region] = (regions[region] || 0) + 1;
+    });
+    
+    const container = document.getElementById('countryStats');
+    const dotsContainer = document.getElementById('mapDots');
+    
+    container.innerHTML = Object.keys(regions).sort((a,b) => regions[b] - regions[a]).map(r =>
+        `<span class="country-badge">📍 ${r} <span class="count">${regions[r]}</span></span>`
+    ).join('') || '<span style="color:var(--text-secondary);font-size:12px;">لا توجد بيانات</span>';
+    
+    dotsContainer.innerHTML = '';
+    const colors = ['#6C2BD9', '#8B5CF6', '#F59E0B', '#10B981', '#EF4444', '#3B82F6', '#EC4899'];
+    let colorIndex = 0;
+    const positions = [
+        {top: '15%', left: '20%'}, {top: '30%', left: '45%'}, {top: '55%', left: '35%'},
+        {top: '70%', left: '60%'}, {top: '25%', left: '70%'}, {top: '60%', left: '80%'},
+        {top: '45%', left: '15%'}, {top: '80%', left: '40%'}, {top: '10%', left: '55%'},
+        {top: '50%', left: '50%'}, {top: '75%', left: '25%'}, {top: '35%', left: '75%'}
+    ];
+    
+    Object.keys(regions).forEach((region, index) => {
+        const pos = positions[index % positions.length];
+        const dot = document.createElement('div');
+        dot.className = 'map-dot';
+        dot.style.top = pos.top;
+        dot.style.left = pos.left;
+        dot.style.background = colors[colorIndex % colors.length];
+        dot.innerHTML = `<div class="tooltip">📍 ${region}: ${regions[region]} مستخدم</div>`;
+        dotsContainer.appendChild(dot);
+        colorIndex++;
+    });
+}
+
+function exportAdminData() {
+    const data = {
+        users: getUsers(),
+        tasks, expenses, debts, taxes,
+        activityLog: activityLog,
+        exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `بيانات_نظام_راشد_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    showNotification('✅ تم التصدير', 'تم تصدير جميع البيانات', 'success');
+}
+
+// ============================================================
+// 📊 الدوال الأساسية (مختصرة)
+// ============================================================
+function formatCurrency(amount) { return amount.toFixed(2) + ' ج.م'; }
+
+function getCategoryLabel(cat) {
+    const labels = { food:'🍽️ طعام', transport:'🚗 مواصلات', bills:'💡 فواتير', shopping:'🛒 مشتريات',
+        rent:'🏠 إيجار', health:'🏥 صحة', education:'📚 تعليم', other:'📦 أخرى', loan:'💳 سلفة', tax:'🧾 ضريبة' };
+    return labels[cat] || cat;
+}
+
+function calculateExpenseSummary() {
+    const today = new Date().toDateString();
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    let total=0, todayTotal=0, monthTotal=0, loansTotal=0, taxTotal=0;
+    expenses.forEach(exp => {
+        const expDate = new Date(exp.date);
+        const isLoan = exp.type === 'loan' || exp.category === 'loan';
+        const isTax = exp.type === 'tax' || exp.category === 'tax';
+        total += exp.amount;
+        if(expDate.toDateString() === today) todayTotal += exp.amount;
+        if(expDate >= monthStart) monthTotal += exp.amount;
+        if(isLoan) loansTotal += exp.amount;
+        if(isTax) taxTotal += exp.amount;
+    });
+    return { total, todayTotal, monthTotal, remain: salary - monthTotal, netRemain: salary - total, loansTotal, taxTotal };
+}
+
+function calculateDebtSummary() {
+    let total=0, totalPaid=0, totalRemaining=0;
+    debts.forEach(debt => { total += debt.amount; totalPaid += debt.paidAmount || 0; totalRemaining += (debt.amount - (debt.paidAmount || 0)); });
+    return { total, totalPaid, totalRemaining };
+}
+
+function calculateTaxSummary() {
+    let total=0, paid=0, due=0;
+    taxes.forEach(tax => { total += tax.amount; if(tax.paid) paid += tax.amount; else due += tax.amount; });
+    let vatBase = 0;
+    expenses.forEach(exp => { if(exp.type !== 'tax' && exp.category !== 'tax' && exp.type !== 'loan' && exp.category !== 'loan') vatBase += exp.amount; });
+    return { total, paid, due, vatAmount: vatBase * (vatRate / 100), incomeTax: Math.max(0, (salary - vatBase) * 0.1) };
+}
+
+// ============================================================
+// 🎨 RENDER ALL
+// ============================================================
+function renderAll() {
+    renderTasks();
+    renderExpenses();
+    renderDebts();
+    renderTaxes();
+    renderDashboard();
+    updateExpenseSummary();
+    updateDebtSummary();
+    updateTaxSummary();
+    updateUserUI();
+}
+
+// ============================================================
+// 📋 المهام
+// ============================================================
+function renderTasks() {
+    const wrapper = document.getElementById('tasksWrapper');
+    const filtered = tasks.filter(t => !t.userId || t.userId === (currentUser ? currentUser.uid : ''));
+    if(filtered.length === 0) {
+        wrapper.innerHTML = '<div class="empty-message">🚀 أضف أول مهمة لك الآن!</div>';
+    } else {
+        wrapper.innerHTML = '';
+        filtered.forEach((task, index) => {
+            const realIndex = tasks.indexOf(task);
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <div style="display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap;">
+                    <span class="task-text${task.done ? ' done' : ''}">${task.text}</span>
+                    ${task.isPremium ? '<span class="task-tag premium-tag">⭐ بريميوم</span>' : ''}
+                    ${task.isRepeating ? '<span class="task-tag repeat-tag">🔄 متكررة</span>' : ''}
+                </div>
+                <div class="task-actions">
+                    <button class="${task.done ? 'undo-btn' : 'done-btn'}" onclick="toggleDone(${realIndex})">${task.done ? '↩️' : '✅'}</button>
+                    <button class="edit-btn" onclick="editTask(${realIndex})">✏️</button>
+                    <button class="delete-btn" onclick="deleteTask(${realIndex})">🗑️</button>
+                </div>
+            `;
+            wrapper.appendChild(div);
+        });
+    }
+    document.getElementById('tasksBadge').textContent = tasks.length;
+    updateStats();
+}
+
+function addTask(isPremium = false, isRepeating = false) {
+    const input = document.getElementById('taskInput');
+    const text = input.value.trim();
+    if(!text) { showNotification('⚠️ تنبيه', 'اكتب المهمة!', 'warning'); return; }
+    if(!currentUser) { showNotification('🔒 مطلوب', 'سجل الدخول أولاً', 'warning'); return; }
+    tasks.push({ id: idCounter++, text, done: false, isPremium, isRepeating, userId: currentUser.uid, createdAt: new Date().toISOString() });
+    input.value = '';
+    saveToLocal();
+    renderAll();
+    logActivity('📋 إضافة مهمة', text + (isPremium ? ' (بريميوم)' : ''));
+    showNotification('✅ تم الإضافة', 'تمت إضافة المهمة', 'success');
+    syncToCloud();
+}
+
+function toggleDone(index) {
+    if(index >= 0 && index < tasks.length) {
+        tasks[index].done = !tasks[index].done;
+        saveToLocal();
+        renderAll();
+        syncToCloud();
+    }
+}
+
+function deleteTask(index) {
+    if(index >= 0 && index < tasks.length && confirm(`⚠️ حذف "${tasks[index].text}"؟`)) {
+        logActivity('🗑️ حذف مهمة', tasks[index].text);
+        tasks.splice(index, 1);
+        saveToLocal();
+        renderAll();
+        syncToCloud();
+    }
+}
+
+function editTask(index) {
+    if(index >= 0 && index < tasks.length) {
+        const newText = prompt('✏️ تعديل المهمة:', tasks[index].text);
+        if(newText && newText.trim()) {
+            logActivity('✏️ تعديل مهمة', tasks[index].text + ' → ' + newText.trim());
+            tasks[index].text = newText.trim();
+            saveToLocal();
+            renderAll();
+            syncToCloud();
+        }
+    }
+}
+
+function updateStats() {
+    document.getElementById('premiumCount').textContent = tasks.filter(t => t.isPremium).length;
+    document.getElementById('doneCount').textContent = tasks.filter(t => t.done).length;
+    document.getElementById('totalCount').textContent = tasks.length;
+    document.getElementById('repeatCount').textContent = tasks.filter(t => t.isRepeating).length;
+    const total = tasks.length, done = tasks.filter(t => t.done).length;
+    const percent = total > 0 ? Math.round((done/total)*100) : 0;
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('progressPercentage').textContent = percent + '%';
+}
+
+function generateAITask() {
+    const suggestions = ['📚 قراءة كتاب 30 دقيقة','🏃 رياضة 20 دقيقة','📝 كتابة مهام الغد','📧 الرد على الرسائل','🧹 ترتيب مكان العمل'];
+    const random = suggestions[Math.floor(Math.random() * suggestions.length)];
+    document.getElementById('taskInput').value = random;
+    addTask(false, false);
+}
+
+// ============================================================
+// 💰 المصاريف
+// ============================================================
+function renderExpenses() {
+    const wrapper = document.getElementById('expensesWrapper');
+    if(expenses.length === 0) {
+        wrapper.innerHTML = '<div class="empty-message">💰 لا توجد مصاريف مسجلة</div>';
+    } else {
+        wrapper.innerHTML = '';
+        expenses.forEach(exp => {
+            const isLoan = exp.type === 'loan' || exp.category === 'loan';
+            const isTax = exp.type === 'tax' || exp.category === 'tax';
+            const div = document.createElement('div');
+            div.className = 'expense-item';
+            div.innerHTML = `
+                <div class="expense-info">
+                    <span style="flex:1;font-weight:500;">${exp.description}</span>
+                    <span class="expense-category ${isLoan ? 'loan' : ''} ${isTax ? 'tax' : ''}">${isLoan ? '💳 سلفة' : isTax ? '🧾 ضريبة' : getCategoryLabel(exp.category)}</span>
+                    <span class="expense-amount">${exp.amount.toFixed(2)} ج.م</span>
+                    <span class="expense-date">${exp.date ? new Date(exp.date).toLocaleDateString('ar-EG') : '—'}</span>
+                    <span class="expense-paid-badge${exp.paid ? '' : ' unpaid'}">${exp.paid ? '✅ مدفوع' : '⏳ غير مدفوع'}</span>
+                </div>
+                <div class="expense-actions">
+                    <button class="toggle-paid" onclick="toggleExpensePaid(${exp.id})">${exp.paid ? '↩️' : '💳'}</button>
+                    <button class="delete-expense" onclick="deleteExpense(${exp.id})">🗑️</button>
+                </div>
+            `;
+            wrapper.appendChild(div);
+        });
+    }
+    document.getElementById('expensesBadge').textContent = expenses.length;
+    updateExpenseSummary();
+}
+
+function addExpense() {
+    const desc = document.getElementById('expenseDesc').value.trim();
+    const amount = parseFloat(document.getElementById('expenseAmount').value);
+    const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+    if(!desc || !amount || amount <= 0) { showNotification('⚠️ تنبيه', 'أدخل وصفاً ومبلغاً', 'warning'); return; }
+    if(!currentUser) { showNotification('🔒 مطلوب', 'سجل الدخول أولاً', 'warning'); return; }
+    expenses.push({ id: expenseIdCounter++, description: desc, amount, category: document.getElementById('expenseCategory').value, type: document.getElementById('expenseType').value, date, userId: currentUser.uid, paid: false });
+    document.getElementById('expenseDesc').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseDate').value = '';
+    saveToLocal();
+    renderAll();
+    logActivity('💰 إضافة مصروف', desc + ' - ' + amount + ' ج.م');
+    showNotification('💰 تم الإضافة', 'تمت إضافة المصروف', 'success');
+    syncToCloud();
+}
+
+function addLoan() {
+    const desc = document.getElementById('expenseDesc').value.trim() || 'سلفة';
+    const amount = parseFloat(document.getElementById('expenseAmount').value);
+    const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+    if(!amount || amount <= 0) { showNotification('⚠️ تنبيه', 'أدخل مبلغاً', 'warning'); return; }
+    if(!currentUser) { showNotification('🔒 مطلوب', 'سجل الدخول أولاً', 'warning'); return; }
+    expenses.push({ id: expenseIdCounter++, description: desc + ' (سلفة)', amount, category: 'loan', type: 'loan', date, userId: currentUser.uid, paid: false });
+    document.getElementById('expenseDesc').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseDate').value = '';
+    saveToLocal();
+    renderAll();
+    logActivity('💳 إضافة سلفة', desc + ' - ' + amount + ' ج.م');
+    showNotification('💳 سلفة', 'تم تسجيل السلفة', 'warning');
+    syncToCloud();
+}
+
+function addTaxExpense() {
+    const desc = document.getElementById('expenseDesc').value.trim() || 'ضريبة';
+    const amount = parseFloat(document.getElementById('expenseAmount').value);
+    const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+    if(!amount || amount <= 0) { showNotification('⚠️ تنبيه', 'أدخل مبلغاً', 'warning'); return; }
+    if(!currentUser) { showNotification('🔒 مطلوب', 'سجل الدخول أولاً', 'warning'); return; }
+    expenses.push({ id: expenseIdCounter++, description: desc + ' (ضريبة)', amount, category: 'tax', type: 'tax', date, userId: currentUser.uid, paid: false });
+    taxes.push({ id: taxIdCounter++, description: desc, amount, type: 'vat', date, paid: false, userId: currentUser.uid });
+    document.getElementById('expenseDesc').value = '';
+    document.getElementById('expenseAmount').value = '';
+    document.getElementById('expenseDate').value = '';
+    saveToLocal();
+    renderAll();
+    logActivity('🧾 إضافة ضريبة', desc + ' - ' + amount + ' ج.م');
+    showNotification('🧾 ضريبة', 'تم تسجيل الضريبة', 'success');
+    syncToCloud();
+}
+
+function toggleExpensePaid(id) {
+    const expense = expenses.find(e => e.id === id);
+    if(expense) { expense.paid = !expense.paid; saveToLocal(); renderAll(); syncToCloud(); }
+}
+
+function deleteExpense(id) {
+    if(confirm('⚠️ حذف هذا المصروف؟')) {
+        const exp = expenses.find(e => e.id === id);
+        if(exp) logActivity('🗑️ حذف مصروف', exp.description);
+        expenses = expenses.filter(e => e.id !== id);
+        saveToLocal();
+        renderAll();
+        syncToCloud();
+    }
+}
+
+function updateExpenseSummary() {
+    const summary = calculateExpenseSummary();
+    document.getElementById('totalExpenses').textContent = summary.total.toFixed(2) + ' ج.م';
+    document.getElementById('todayExpenses').textContent = summary.todayTotal.toFixed(2) + ' ج.م';
+    document.getElementById('monthlyExpenses').textContent = summary.monthTotal.toFixed(2) + ' ج.م';
+    document.getElementById('totalLoans').textContent = summary.loansTotal.toFixed(2) + ' ج.م';
+    document.getElementById('totalTaxAmount').textContent = summary.taxTotal.toFixed(2) + ' ج.م';
+    document.getElementById('remainAmount').textContent = summary.remain.toFixed(2) + ' ج.م';
+    document.getElementById('netRemainAmount').textContent = summary.netRemain.toFixed(2) + ' ج.م';
+}
+
+// ============================================================
+// 💳 المديونيات
+// ============================================================
+function renderDebts() {
+    const wrapper = document.getElementById('debtsWrapper');
+    if(debts.length === 0) {
+        wrapper.innerHTML = '<div class="empty-message">💰 لا توجد مديونيات مسجلة</div>';
+    } else {
+        wrapper.innerHTML = '';
+        debts.forEach(debt => {
+            const remaining = debt.amount - (debt.paidAmount || 0);
+            const isPaid = remaining <= 0;
+            const div = document.createElement('div');
+            div.className = 'debt-item';
+            div.innerHTML = `
+                <div class="debt-info">
+                    <span class="debt-name">${debt.description}</span>
+                    <span class="debt-amount">${debt.amount.toFixed(2)} ج.م</span>
+                    <span class="debt-paid">✅ ${(debt.paidAmount || 0).toFixed(2)} ج.م</span>
+                    <span class="debt-remaining">المتبقي: ${remaining.toFixed(2)} ج.م</span>
+                    <span class="debt-status${isPaid ? ' paid' : ''}">${isPaid ? '✅ مدفوعة' : '⏳ متبقي'}</span>
+                </div>
+                <div class="debt-actions">
+                    ${!isPaid ? `<button class="pay-debt" onclick="openPayDebt(${debt.id})">💳</button>` : ''}
+                    <button class="delete-debt" onclick="deleteDebt(${debt.id})">🗑️</button>
+                </div>
+            `;
+            wrapper.appendChild(div);
+        });
+    }
+    updateDebtSummary();
+}
+
+function addDebt() {
+    const desc = document.getElementById('debtDesc').value.trim();
+    const amount = parseFloat(document.getElementById('debtAmount').value);
+    const dueDate = document.getElementById('debtDueDate').value;
+    if(!desc || !amount || amount <= 0) { showNotification('⚠️ تنبيه', 'أدخل وصفاً ومبلغاً', 'warning'); return; }
+    if(!currentUser) { showNotification('🔒 مطلوب', 'سجل الدخول أولاً', 'warning'); return; }
+    debts.push({ id: debtIdCounter++, description: desc, amount, paidAmount: 0, dueDate: dueDate || null, userId: currentUser.uid });
+    document.getElementById('debtDesc').value = '';
+    document.getElementById('debtAmount').value = '';
+    document.getElementById('debtDueDate').value = '';
+    saveToLocal();
+    renderAll();
+    logActivity('💳 إضافة مديونية', desc + ' - ' + amount + ' ج.م');
+    showNotification('💳 تم الإضافة', 'تمت إضافة المديونية', 'success');
+    syncToCloud();
+}
+
+function deleteDebt(id) {
+    if(confirm('⚠️ حذف هذه المديونية؟')) {
+        const debt = debts.find(d => d.id === id);
+        if(debt) logActivity('🗑️ حذف مديونية', debt.description);
+        debts = debts.filter(d => d.id !== id);
+        saveToLocal();
+        renderAll();
+        syncToCloud();
+    }
+}
+
+function openPayDebt(id) {
+    const debt = debts.find(d => d.id === id);
+    if(!debt) return;
+    const remaining = debt.amount - (debt.paidAmount || 0);
+    const amount = prompt(`💳 المبلغ المتبقي: ${remaining.toFixed(2)} ج.م\nأدخل مبلغ السداد:`);
+    if(amount) {
+        const val = parseFloat(amount);
+        if(val > 0 && val <= remaining) {
+            debt.paidAmount = (debt.paidAmount || 0) + val;
+            saveToLocal();
+            renderAll();
+            logActivity('✅ سداد مديونية', debt.description + ' - ' + val + ' ج.م');
+            showNotification('✅ تم السداد', `تم سداد ${val.toFixed(2)} ج.م`, 'success');
+            syncToCloud();
+        } else {
+            showNotification('⚠️ خطأ', 'المبلغ غير صحيح', 'warning');
+        }
+    }
+}
+
+function updateDebtSummary() {
+    const summary = calculateDebtSummary();
+    document.getElementById('totalDebts').textContent = summary.total.toFixed(2) + ' ج.م';
+    document.getElementById('totalPaidDebts').textContent = summary.totalPaid.toFixed(2) + ' ج.م';
+    document.getElementById('totalRemainingDebts').textContent = summary.totalRemaining.toFixed(2) + ' ج.م';
+}
+
+// ============================================================
+// 🧾 الضرائب
+// ============================================================
+function renderTaxes() {
+    const wrapper = document.getElementById('taxWrapper');
+    if(taxes.length === 0) {
+        wrapper.innerHTML = '<div class="empty-message">🧾 لا توجد ضرائب مسجلة</div>';
+    } else {
+        wrapper.innerHTML = '';
+        taxes.forEach(tax => {
+            const div = document.createElement('div');
+            div.className = 'expense-item';
+            div.innerHTML = `
+                <div class="expense-info">
+                    <span style="flex:1;font-weight:500;">🧾 ${tax.description}</span>
+                    <span class="expense-category tax">ضريبة</span>
+                    <span class="expense-amount tax-amount">${tax.amount.toFixed(2)} ج.م</span>
+                    <span class="expense-date">${new Date(tax.date).toLocaleDateString('ar-EG')}</span>
+                    <span class="expense-paid-badge${tax.paid ? '' : ' unpaid'}">${tax.paid ? '✅ مدفوعة' : '⏳ غير مدفوعة'}</span>
+                </div>
+                <div class="expense-actions">
+                    <button class="toggle-paid" onclick="toggleTaxPaid(${tax.id})">${tax.paid ? '↩️' : '💳'}</button>
+                    <button class="delete-expense" onclick="deleteTax(${tax.id})">🗑️</button>
+                </div>
+            `;
+            wrapper.appendChild(div);
+        });
+    }
+    updateTaxSummary();
+}
+
+function toggleTaxPaid(id) {
+    const tax = taxes.find(t => t.id === id);
+    if(tax) { tax.paid = !tax.paid; saveToLocal(); renderAll(); syncToCloud(); }
+}
+
+function deleteTax(id) {
+    if(confirm('⚠️ حذف هذه الضريبة؟')) {
+        const tax = taxes.find(t => t.id === id);
+        if(tax) logActivity('🗑️ حذف ضريبة', tax.description);
+        taxes = taxes.filter(t => t.id !== id);
+        saveToLocal();
+        renderAll();
+        syncToCloud();
+    }
+}
+
+function openTaxModal() {
+    document.getElementById('taxModal').classList.add('active');
+    document.getElementById('taxDateInput').value = new Date().toISOString().split('T')[0];
+}
+
+function saveTaxRecord() {
+    const desc = document.getElementById('taxDescInput').value.trim();
+    const amount = parseFloat(document.getElementById('taxAmountInput').value);
+    const date = document.getElementById('taxDateInput').value;
+    if(!desc || !amount) { showNotification('⚠️ تنبيه', 'أدخل البيانات', 'warning'); return; }
+    taxes.push({ id: taxIdCounter++, description: desc, amount, type: 'vat', date: date || new Date().toISOString(), paid: false, userId: currentUser?.uid });
+    document.getElementById('taxModal').classList.remove('active');
+    saveToLocal();
+    renderAll();
+    logActivity('🧾 تسجيل ضريبة', desc + ' - ' + amount + ' ج.م');
+    showNotification('🧾 تم التسجيل', 'تم تسجيل الضريبة', 'success');
+    syncToCloud();
+}
+
+function payAllTaxes() {
+    const unpaid = taxes.filter(t => !t.paid);
+    if(unpaid.length === 0) { showNotification('ℹ️', 'لا توجد ضرائب مستحقة', 'info'); return; }
+    const total = unpaid.reduce((sum, t) => sum + t.amount, 0);
+    if(confirm(`⚠️ سداد جميع الضرائب (${total.toFixed(2)} ج.م)؟`)) {
+        unpaid.forEach(t => t.paid = true);
+        saveToLocal();
+        renderAll();
+        logActivity('✅ سداد جميع الضرائب', total + ' ج.م');
+        showNotification('✅ تم السداد', 'تم سداد جميع الضرائب', 'success');
+        syncToCloud();
+    }
+}
+
+function updateTaxSummary() {
+    const summary = calculateTaxSummary();
+    document.getElementById('taxTotalPaid').textContent = summary.paid.toFixed(2) + ' ج.م';
+    document.getElementById('taxTotalDue').textContent = summary.due.toFixed(2) + ' ج.م';
+    document.getElementById('taxTotalVAT').textContent = summary.vatAmount.toFixed(2) + ' ج.م';
+    document.getElementById('taxTotalIncome').textContent = summary.incomeTax.toFixed(2) + ' ج.م';
+}
+
+// ============================================================
+// 📊 Dashboard
+// ============================================================
+function renderDashboard() {
+    const total = tasks.length, done = tasks.filter(t => t.done).length;
+    const summary = calculateExpenseSummary();
+    const debtSummary = calculateDebtSummary();
+    const taxSummary = calculateTaxSummary();
+    document.getElementById('dashTotalTasks').textContent = total;
+    document.getElementById('dashDoneTasks').textContent = done;
+    document.getElementById('dashTotalExp').textContent = summary.total.toFixed(2) + ' ج.م';
+    document.getElementById('dashTotalDebts').textContent = debtSummary.total.toFixed(2) + ' ج.م';
+    document.getElementById('dashTotalTax').textContent = taxSummary.total.toFixed(2) + ' ج.م';
+    const netWorth = salary - summary.total - debtSummary.totalRemaining;
+    document.getElementById('dashNetWorth').textContent = netWorth.toFixed(2) + ' ج.م';
+    
+    const recentTasks = document.getElementById('recentTasks');
+    const sortedTasks = [...tasks].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).slice(0, 5);
+    recentTasks.innerHTML = sortedTasks.length === 0 ? '<div style="color:var(--text-secondary);font-size:12px;">لا توجد مهام</div>' :
+        sortedTasks.map(t => `<div class="recent-item"><span>${t.text}</span><span class="badge-sm ${t.done ? 'done' : 'pending'}">${t.done ? '✅ منجزة' : '⏳'}</span></div>`).join('');
+    
+    const recentExpenses = document.getElementById('recentExpenses');
+    const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    recentExpenses.innerHTML = sortedExpenses.length === 0 ? '<div style="color:var(--text-secondary);font-size:12px;">لا توجد مصاريف</div>' :
+        sortedExpenses.map(e => `<div class="recent-item"><span>${e.description}</span><span>${e.amount.toFixed(2)} ج.م</span></div>`).join('');
+    
+    renderChart();
+    generateAIInsights();
+}
+
+function renderChart() {
+    const canvas = document.getElementById('dashChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if(dashChartInstance) { dashChartInstance.destroy(); dashChartInstance = null; }
+    const days=[], amounts=[];
+    const now = new Date();
+    for(let i=6; i>=0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        days.push(dateStr);
+        let total = 0;
+        expenses.forEach(e => { if(e.date && e.date.startsWith(dateStr)) total += e.amount; });
+        amounts.push(total);
+    }
+    dashChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels: days.map(d => new Date(d).toLocaleDateString('ar-EG', { month:'short', day:'numeric' })), datasets: [{ label: 'ج.م', data: amounts, borderColor: '#6C2BD9', backgroundColor: 'rgba(108,43,217,0.1)', fill: true, tension: 0.4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+}
+
+function generateAIInsights() {
+    const container = document.getElementById('aiInsightsContainer');
+    const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
+    const insights = [];
+    if(totalExp > 0) {
+        const categories = {};
+        expenses.forEach(e => { if(!categories[e.category]) categories[e.category] = 0; categories[e.category] += e.amount; });
+        const maxCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b);
+        insights.push({ icon: '📊', text: `أكثر فئة إنفاق: ${getCategoryLabel(maxCat)}`, type: 'warning' });
+    }
+    if(tasks.length > 0) {
+        const done = tasks.filter(t => t.done).length;
+        insights.push({ icon: '📋', text: `إنجاز المهام: ${Math.round((done/tasks.length)*100)}%`, type: 'positive' });
+    }
+    if(debts.length > 0) {
+        const remaining = debts.reduce((s, d) => s + (d.amount - (d.paidAmount || 0)), 0);
+        insights.push({ icon: '💳', text: `المديونيات المتبقية: ${remaining.toFixed(2)} ج.م`, type: 'danger' });
+    }
+    container.innerHTML = insights.length === 0 ? '<div class="insight-item"><span class="icon">🤖</span><span class="text">أضف بيانات للحصول على تحليلات</span></div>' :
+        insights.map(i => `<div class="insight-item ${i.type}"><span class="icon">${i.icon}</span><span class="text">${i.text}</span></div>`).join('');
+}
+
+// ============================================================
+// 📊 الميزانية الذكية
+// ============================================================
+function generateSmartBudget() {
+    const totalBudget = salary || 5000;
+    const categories = [
+        { id: 'budgetFood', label: '🍽️ الطعام', percent: 30, color: '#10B981' },
+        { id: 'budgetRent', label: '🏠 السكن', percent: 25, color: '#3B82F6' },
+        { id: 'budgetTransport', label: '🚗 المواصلات', percent: 15, color: '#F59E0B' },
+        { id: 'budgetSaving', label: '💰 التوفير', percent: 20, color: '#8B5CF6' },
+        { id: 'budgetEntertainment', label: '🎮 الترفيه', percent: 5, color: '#EC4899' },
+        { id: 'budgetOther', label: '📦 أخرى', percent: 5, color: '#6B7280' }
+    ];
+    categories.forEach(cat => {
+        const amount = (totalBudget * cat.percent) / 100;
+        document.getElementById(cat.id).textContent = cat.percent + '%';
+        document.getElementById(cat.id + 'Amount').textContent = amount.toFixed(2) + ' ج.م';
+        document.getElementById(cat.id + 'Bar').style.width = cat.percent + '%';
+    });
+    logActivity('🤖 توليد ميزانية ذكية', 'بناءً على راتب ' + totalBudget);
+    showNotification('🤖 تم التوليد', 'تم إنشاء الميزانية الذكية', 'success');
+}
+
+function resetBudget() {
+    if(confirm('⚠️ إعادة تعيين الميزانية؟')) {
+        ['budgetFood','budgetRent','budgetTransport','budgetSaving','budgetEntertainment','budgetOther'].forEach(id => {
+            document.getElementById(id).textContent = '0%';
+            document.getElementById(id + 'Amount').textContent = '0 ج.م';
+            document.getElementById(id + 'Bar').style.width = '0%';
+        });
+        showNotification('🔄 تم الإعادة', 'تم إعادة تعيين الميزانية', 'info');
+    }
+}
+
+// ============================================================
+// ⚙️ وظائف أخرى
+// ============================================================
+function saveSalary() {
+    const value = parseFloat(document.getElementById('salaryInput').value);
+    if(isNaN(value) || value < 0) { showNotification('⚠️', 'أدخل راتباً صحيحاً', 'warning'); return; }
+    salary = value;
+    saveToLocal();
+    renderAll();
+    logActivity('💰 حفظ الراتب', salary + ' ج.م');
+    showNotification('💾 تم الحفظ', `الراتب: ${salary} ج.م`, 'success');
+    syncToCloud();
+}
+
+function saveVatRate() {
+    const value = parseFloat(document.getElementById('vatRate').value);
+    if(isNaN(value) || value < 0 || value > 100) { showNotification('⚠️', 'نسبة صحيحة (0-100)', 'warning'); return; }
+    vatRate = value;
+    saveToLocal();
+    logActivity('🧾 حفظ نسبة الضريبة', vatRate + '%');
+    showNotification('💾 تم الحفظ', `نسبة الضريبة: ${vatRate}%`, 'success');
+    syncToCloud();
+}
+
+function clearAllData() {
+    if(confirm('⚠️ مسح جميع البيانات؟')) {
+        tasks = []; expenses = []; debts = []; taxes = [];
+        idCounter = 0; expenseIdCounter = 0; debtIdCounter = 0; taxIdCounter = 0;
+        salary = 0;
+        saveToLocal();
+        renderAll();
+        logActivity('🧹 مسح جميع البيانات', 'تم مسح كل شيء');
+        showNotification('🧹 تم المسح', 'تم مسح جميع البيانات', 'success');
+        syncToCloud();
+    }
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+function updateUserUI() {
+    const btn = document.getElementById('loginBtnHeader');
+    const display = document.getElementById('userDisplay');
+    if(currentUser) {
+        const name = currentUser.displayName || currentUser.email;
+        btn.textContent = `👤 ${name}`;
+        btn.className = 'btn-login-header logged-in';
+        display.textContent = `👤 ${name}`;
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('displayName').textContent = name;
+        document.getElementById('displayEmail').textContent = currentUser.email;
+        document.getElementById('displayRegion').textContent = `📍 ${currentUser.region || 'غير محدد'}`;
+    } else {
+        btn.textContent = '👤 تسجيل الدخول';
+        btn.className = 'btn-login-header';
+        display.textContent = '👤 زائر';
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'none';
+    }
+}
+
+function switchLoginTab(tab) {
+    const loginTab = document.getElementById('loginTabBtn');
+    const registerTab = document.getElementById('registerTabBtn');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const title = document.getElementById('loginTitle');
+    const sub = document.getElementById('loginSub');
+    if(tab === 'login') {
+        loginTab.classList.add('active'); registerTab.classList.remove('active');
+        loginForm.style.display = 'block'; registerForm.style.display = 'none';
+        title.textContent = '👤 تسجيل الدخول';
+        sub.textContent = 'سجل الدخول للمزامنة بين الأجهزة';
+    } else {
+        registerTab.classList.add('active'); loginTab.classList.remove('active');
+        loginForm.style.display = 'none'; registerForm.style.display = 'block';
+        title.textContent = '📝 إنشاء حساب';
+        sub.textContent = 'أنشئ حسابك للبدء';
+    }
+}
+
+function openLogin() {
+    document.getElementById('loginModal').classList.add('active');
+    switchLoginTab('login');
+}
+
+function closeLogin() {
+    document.getElementById('loginModal').classList.remove('active');
+}
+
+function exportReport(format) {
+    showNotification('📄 جاري التصدير', `تصدير بصيغة ${format.toUpperCase()}`, 'info');
+}
+
+// ============================================================
+// 🚀 INIT - تشغيل التطبيق
+// ============================================================
+document.getElementById('logoClick').addEventListener('click', function() {
+    adminClickCount++;
+    if (adminTimeout) clearTimeout(adminTimeout);
+    adminTimeout = setTimeout(() => { adminClickCount = 0; }, 2000);
+    if (adminClickCount >= 5) {
+        adminClickCount = 0;
+        const password = prompt('🔐 أدخل كلمة مرور المدير:');
+        if (password === 'admin123') {
+            openAdminPanel();
+            logActivity('🛡️ فتح لوحة التحكم', 'بواسطة المدير');
+        } else if (password !== null) {
+            showNotification('❌ خطأ', 'كلمة المرور غير صحيحة', 'error');
+        }
+    }
+});
+
+function init() {
+    console.log('🚀 نظام راشد المحاسبي v5.0');
+    console.log('☁️ Firebase:', firebaseInitialized ? '✅ متصل' : '❌ غير متصل');
+    console.log('📁 Project:', firebaseConfig.projectId);
+    console.log('💎 © 2026 Rashed Rabia');
+    
+    loadFromLocal();
+    const savedUser = getCurrentUser();
+    if(savedUser) { currentUser = savedUser; updateUserUI(); }
+    
+    if (currentUser && firebaseInitialized && navigator.onLine) {
+        loadFromCloud().then(() => renderAll());
+    } else {
+        renderAll();
+    }
+    
+    // ===== الأزرار =====
+    document.getElementById('addFreeBtn').addEventListener('click', function() { addTask(false, false); });
+    document.getElementById('addPremiumBtn').addEventListener('click', function() { addTask(true, false); });
+    document.getElementById('addRepeatBtn').addEventListener('click', function() { addTask(false, true); });
+    document.getElementById('aiFreeBtn').addEventListener('click', generateAITask);
+    
+    document.getElementById('addExpenseBtn').addEventListener('click', addExpense);
+    document.getElementById('addLoanBtn').addEventListener('click', addLoan);
+    document.getElementById('addTaxBtn').addEventListener('click', addTaxExpense);
+    document.getElementById('smartBudgetBtn').addEventListener('click', generateSmartBudget);
+    document.getElementById('saveSalaryBtn').addEventListener('click', saveSalary);
+    
+    document.getElementById('addDebtBtn').addEventListener('click', addDebt);
+    document.getElementById('saveVatBtn').addEventListener('click', saveVatRate);
+    
+    document.getElementById('loginBtnHeader').addEventListener('click', openLogin);
+    document.getElementById('closeLoginBtn').addEventListener('click', closeLogin);
+    document.getElementById('loginConfirmBtn').addEventListener('click', loginUser);
+    document.getElementById('registerConfirmBtn').addEventListener('click', registerUser);
+    document.getElementById('logoutBtn').addEventListener('click', logoutUser);
+    
+    document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+    document.getElementById('upgradeBtn').addEventListener('click', function() {
+        document.getElementById('upgradeModal').classList.add('active');
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', function() {
+        document.getElementById('upgradeModal').classList.remove('active');
+    });
+    
+    // ===== التبويبات =====
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { switchTab(this.dataset.tab); });
+    });
+    
+    // ===== الفلاتر =====
+    document.querySelectorAll('.filter-area .filter-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-area .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            renderTasks();
+        });
+    });
+    
+    document.querySelectorAll('.expense-filter-area .filter-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.expense-filter-area .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            renderExpenses();
+        });
+    });
+    
+    // ===== Enter key =====
+    document.getElementById('taskInput').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') addTask(false, false);
+    });
+    document.getElementById('expenseAmount').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') addExpense();
+    });
+    document.getElementById('debtAmount').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') addDebt();
+    });
+    
+    // ===== التاريخ =====
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('expenseDate').value = today;
+    
+    // ===== مراقبة الاتصال =====
+    window.addEventListener('online', function() {
+        updateConnectionStatus();
+        if (currentUser) syncToCloud();
+    });
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    console.log('✅ التطبيق جاهز!');
+    console.log('🛡️ لوحة التحكم: 5 ضغطات على الشعار');
+    console.log('🔑 كلمة المرور: admin123');
+    console.log('☁️ المزامنة:', firebaseInitialized ? '✅ مفعلة' : '❌ غير مفعلة');
+}
+
+function updateConnectionStatus() {
+    const status = document.getElementById('connectionStatus');
+    if (navigator.onLine && firebaseInitialized) {
+        status.className = 'connection-status online';
+        status.textContent = '🟢 متصل';
+    } else if (navigator.onLine && !firebaseInitialized) {
+        status.className = 'connection-status online';
+        status.textContent = '🟡 محلي (بدون سحابة)';
+    } else {
+        status.className = 'connection-status offline';
+        status.textContent = '🔴 غير متصل';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
