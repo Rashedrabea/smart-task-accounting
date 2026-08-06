@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>✅ النظام المحاسبي المتكامل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#6C2BD9;--primary-light:#8B5CF6;--primary-dark:#4A1A9E;--secondary:#F59E0B;--success:#10B981;--danger:#EF4444;--gray-50:#1a1a2e;--gray-100:#16213e;--gray-200:#1e2a4a;--gray-300:#2a3a5a;--gray-400:#4a5a7a;--gray-500:#6a7a9a;--gray-600:#8a9aba;--bg-body:#0a0a1a;--bg-card:#12122a;--text-primary:#eaf0fa;--text-secondary:#8a9aba;--border-color:#2a3a5a;--shadow:0 4px 24px rgba(0,0,0,0.4);--shadow-lg:0 12px 48px rgba(0,0,0,0.6);--radius:16px;--radius-lg:24px;--transition:all 0.5s cubic-bezier(0.4,0,0.2,1);--font:'Segoe UI','Tahoma',system-ui,sans-serif}
+        body{font-family:var(--font);background:var(--bg-body);color:var(--text-primary);overflow-x:hidden;min-height:100vh}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeInLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes fadeInRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .animate-on-scroll{opacity:0;transform:translateY(40px);transition:all 0.8s cubic-bezier(0.4,0,0.2,1)}
+        .animate-on-scroll.visible{opacity:1;transform:translateY(0)}
+        .navbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(18,18,42,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border-color);padding:12px 32px;display:flex;justify-content:space-between;align-items:center;transition:var(--transition)}
+        .navbar .logo{font-size:22px;font-weight:800;color:var(--text-primary);text-decoration:none}
+        .navbar .logo .highlight{background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .nav-links{display:flex;align-items:center;gap:24px;list-style:none}
+        .nav-links a{text-decoration:none;color:var(--text-secondary);font-weight:600;font-size:14px;transition:var(--transition)}
+        .nav-links a:hover{color:var(--primary-light)}
+        .btn-nav-primary{background:var(--primary);color:#fff!important;padding:8px 24px;border-radius:60px;font-weight:700;transition:var(--transition)}
+        .btn-nav-primary:hover{background:var(--primary-dark)!important;transform:scale(1.04)}
+        .btn-nav-outline{border:2px solid var(--border-color);padding:6px 20px;border-radius:60px;font-weight:600;transition:var(--transition)}
+        .btn-nav-outline:hover{border-color:var(--primary);color:var(--primary-light)!important}
+        .mobile-menu-btn{display:none;background:0;border:0;font-size:28px;color:var(--text-primary);cursor:pointer}
+        .hero{padding:140px 32px 80px;max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;min-height:100vh}
+        .hero-content{animation:fadeInLeft 1s ease}
+        .hero-content h1{font-size:54px;font-weight:900;line-height:1.15;color:var(--text-primary);margin-bottom:20px}
+        .hero-content h1 .highlight{background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero-content p{font-size:18px;color:var(--text-secondary);line-height:1.8;max-width:500px;margin-bottom:32px}
+        .hero-badges{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+        .hero-badges .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:60px;font-size:13px;font-weight:600;background:var(--gray-100);color:var(--text-secondary);border:1px solid var(--border-color)}
+        .hero-badges .badge.primary{background:var(--primary-dark);color:var(--primary-light);border-color:var(--primary)}
+        .hero-badges .badge.success{background:var(--success);color:#fff;border-color:var(--success)}
+        .hero-badges .badge.warning{background:var(--secondary);color:#1a1a2e;border-color:var(--secondary)}
+        .hero-actions{display:flex;gap:16px;flex-wrap:wrap}
+        .btn-hero-primary{padding:16px 40px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border:0;border-radius:60px;font-size:18px;font-weight:700;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+        .btn-hero-primary:hover{transform:scale(1.06);box-shadow:0 8px 32px rgba(108,43,217,0.4)}
+        .btn-hero-secondary{padding:16px 32px;background:0 0;color:var(--text-secondary);border:2px solid var(--border-color);border-radius:60px;font-size:18px;font-weight:600;cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+        .btn-hero-secondary:hover{border-color:var(--primary);color:var(--primary-light);transform:scale(1.03)}
+        .hero-preview{background:var(--bg-card);border-radius:var(--radius-lg);padding:24px;width:100%;max-width:560px;box-shadow:var(--shadow-lg);border:1px solid var(--border-color)}
+        .hero-preview .preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;color:var(--text-secondary);font-size:13px}
+        .hero-preview .preview-header .dots{display:flex;gap:6px}
+        .hero-preview .preview-header .dots span{width:10px;height:10px;border-radius:50%;display:block}
+        .hero-preview .preview-header .dots span:nth-child(1){background:#EF4444}
+        .hero-preview .preview-header .dots span:nth-child(2){background:#F59E0B}
+        .hero-preview .preview-header .dots span:nth-child(3){background:#10B981}
+        .preview-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+        .preview-card{background:var(--gray-100);border-radius:var(--radius-sm);padding:16px;text-align:center;border:1px solid var(--border-color);transition:var(--transition)}
+        .preview-card:hover{transform:translateY(-4px);border-color:var(--primary)}
+        .preview-card .number{font-size:28px;font-weight:900;color:var(--text-primary);transition:var(--transition)}
+        .preview-card.primary .number{color:var(--primary-light)}
+        .preview-card.success .number{color:var(--success)}
+        .preview-card.warning .number{color:var(--secondary)}
+        .preview-card .label{font-size:11px;color:var(--text-secondary);margin-top:4px}
+        .preview-chart{height:80px;background:var(--gray-100);border-radius:var(--radius-sm);display:flex;align-items:flex-end;padding:12px 8px;gap:8px;border:1px solid var(--border-color)}
+        .preview-chart .bar{flex:1;border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--primary-light),var(--primary));min-height:20px;transition:all 1s ease}
+        .preview-chart .bar:nth-child(1){height:40px;animation:float 3s ease-in-out infinite}
+        .preview-chart .bar:nth-child(2){height:60px;animation:float 3s ease-in-out infinite 0.3s}
+        .preview-chart .bar:nth-child(3){height:35px;animation:float 3s ease-in-out infinite 0.6s}
+        .preview-chart .bar:nth-child(4){height:75px;animation:float 3s ease-in-out infinite 0.9s}
+        .preview-chart .bar:nth-child(5){height:50px;animation:float 3s ease-in-out infinite 1.2s}
+        .preview-chart .bar:nth-child(6){height:65px;animation:float 3s ease-in-out infinite 1.5s}
+        .preview-chart .bar:nth-child(7){height:30px;animation:float 3s ease-in-out infinite 1.8s}
+        .floating-badge{position:absolute;background:var(--bg-card);border-radius:var(--radius);padding:12px 18px;box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;border:1px solid var(--border-color);animation:float 4s ease-in-out infinite}
+        .floating-badge.tax{top:5%;right:-5%;color:#A78BFA;border-right:4px solid #7C3AED}
+        .floating-badge.income{bottom:15%;left:-8%;color:var(--success);border-right:4px solid var(--success)}
+        .floating-badge.users{top:20%;left:-10%;color:var(--primary-light);border-right:4px solid var(--primary)}
+        .floating-badge .number-badge{font-size:20px;font-weight:900;display:block}
+        .stats{padding:80px 32px;max-width:1280px;margin:0 auto;border-top:1px solid var(--border-color)}
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:center}
+        .stat-item .number{font-size:48px;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+        .stat-item .number .counter{display:inline-block}
+        .stat-item .label{font-size:14px;color:var(--text-secondary);margin-top:8px}
+        .features{padding:80px 32px;max-width:1280px;margin:0 auto}
+        .section-header{text-align:center;margin-bottom:48px}
+        .section-header h2{font-size:40px;font-weight:800;color:var(--text-primary)}
+        .section-header h2 .highlight{background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .section-header p{font-size:18px;color:var(--text-secondary);max-width:600px;margin:12px auto 0}
+        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .feature-card{background:var(--bg-card);border-radius:var(--radius);padding:32px 28px;border:1px solid var(--border-color);transition:var(--transition);position:relative;overflow:hidden}
+        .feature-card:hover{transform:translateY(-10px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+        .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transform:scaleX(0);transition:transform 0.5s ease}
+        .feature-card:hover::before{transform:scaleX(1)}
+        .feature-card .icon{font-size:44px;margin-bottom:16px;display:inline-block;animation:float 4s ease-in-out infinite}
+        .feature-card h3{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px}
+        .feature-card p{font-size:14px;color:var(--text-secondary);line-height:1.7}
+        .feature-card .tag{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;padding:4px 12px;border-radius:40px;background:var(--primary-dark);color:var(--primary-light)}
+        .feature-card .tag.new{background:var(--success);color:#fff}
+        .feature-card .tag.popular{background:var(--secondary);color:#1a1a2e}
+        .pricing{padding:80px 32px;max-width:1280px;margin:0 auto}
+        .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px}
+        .pricing-card{background:var(--bg-card);border-radius:var(--radius);padding:32px 28px;border:2px solid var(--border-color);transition:var(--transition);text-align:center;position:relative}
+        .pricing-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+        .pricing-card.popular{border-color:var(--primary);transform:scale(1.02)}
+        .pricing-card.popular:hover{transform:scale(1.04)}
+        .pricing-card .popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:4px 20px;border-radius:40px;font-size:12px;font-weight:700;animation:pulse 2s infinite}
+        .pricing-card .plan-name{font-size:20px;font-weight:700;color:var(--text-primary);margin-top:8px}
+        .pricing-card .price{font-size:48px;font-weight:900;color:var(--text-primary);margin:16px 0}
+        .pricing-card .price span{font-size:16px;font-weight:400;color:var(--text-secondary)}
+        .pricing-card .features-list{list-style:none;text-align:right;margin:16px 0 24px}
+        .pricing-card .features-list li{padding:8px 0;border-bottom:1px solid var(--border-color);font-size:14px;color:var(--text-secondary);display:flex;align-items:center;gap:10px}
+        .pricing-card .features-list li .check{color:var(--success);font-weight:700}
+        .pricing-card .features-list li .cross{color:var(--danger)}
+        .btn-pricing{width:100%;padding:14px;border:0;border-radius:60px;font-size:16px;font-weight:700;cursor:pointer;transition:var(--transition)}
+        .btn-pricing.primary{background:var(--primary);color:#fff}
+        .btn-pricing.primary:hover{background:var(--primary-dark);transform:scale(1.02)}
+        .btn-pricing.outline{background:0 0;color:var(--text-secondary);border:2px solid var(--border-color)}
+        .btn-pricing.outline:hover{border-color:var(--primary);color:var(--primary-light)}
+        .testimonials{padding:80px 32px;max-width:1280px;margin:0 auto}
+        .testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .testimonial-card{background:var(--bg-card);border-radius:var(--radius);padding:28px 24px;border:1px solid var(--border-color);transition:var(--transition)}
+        .testimonial-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg);border-color:var(--primary)}
+        .testimonial-card .stars{color:var(--secondary);font-size:18px;margin-bottom:12px}
+        .testimonial-card .text{font-size:15px;color:var(--text-secondary);line-height:1.8}
+        .testimonial-card .author{margin-top:16px;display:flex;align-items:center;gap:12px}
+        .testimonial-card .author .avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px}
+        .testimonial-card .author .name{font-weight:700;color:var(--text-primary)}
+        .testimonial-card .author .role{font-size:12px;color:var(--text-secondary)}
+        .cta{padding:80px 32px;max-width:1280px;margin:0 auto;text-align:center;background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:var(--radius-lg);position:relative;overflow:hidden}
+        .cta::before{content:'';position:absolute;top:-50%;right:-30%;width:500px;height:500px;background:rgba(255,255,255,0.05);border-radius:50%;pointer-events:none;animation:float 6s ease-in-out infinite}
+        .cta::after{content:'';position:absolute;bottom:-50%;left:-30%;width:400px;height:400px;background:rgba(255,255,255,0.03);border-radius:50%;pointer-events:none;animation:float 8s ease-in-out infinite reverse}
+        .cta h2{font-size:44px;font-weight:800;position:relative;z-index:1}
+        .cta p{font-size:18px;opacity:.9;max-width:500px;margin:12px auto 32px;position:relative;z-index:1}
+        .cta .btn-cta{padding:16px 48px;background:#fff;color:var(--primary);border:0;border-radius:60px;font-size:18px;font-weight:700;cursor:pointer;transition:var(--transition);position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;text-decoration:none}
+        .cta .btn-cta:hover{transform:scale(1.06);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+        .footer{padding:40px 32px 24px;max-width:1280px;margin:0 auto;border-top:1px solid var(--border-color);display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
+        .footer .brand p{color:var(--text-secondary);font-size:14px;margin-top:8px;max-width:280px}
+        .footer h4{font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:12px}
+        .footer ul{list-style:none}
+        .footer ul li{margin-bottom:8px}
+        .footer ul li a{color:var(--text-secondary);text-decoration:none;font-size:14px;transition:var(--transition)}
+        .footer ul li a:hover{color:var(--primary-light)}
+        .footer-bottom{grid-column:1/-1;text-align:center;padding-top:20px;border-top:1px solid var(--border-color);font-size:13px;color:var(--text-secondary)}
+        @media(max-width:992px){.hero{grid-template-columns:1fr;text-align:center;padding:120px 20px 60px}.hero-content p{margin:0 auto 24px}.hero-badges,.hero-actions{justify-content:center}.features-grid,.pricing-grid,.testimonials-grid{grid-template-columns:1fr 1fr}.stats-grid{grid-template-columns:1fr 1fr}.footer{grid-template-columns:1fr 1fr}.floating-badge{display:none}}
+        @media(max-width:768px){.nav-links{display:none;flex-direction:column;position:absolute;top:100%;left:0;right:0;background:var(--bg-card);padding:20px;box-shadow:var(--shadow-lg);border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--border-color)}.nav-links.open{display:flex}.mobile-menu-btn{display:block}.navbar{padding:10px 16px}.hero-content h1{font-size:32px}.features-grid,.pricing-grid,.testimonials-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}.footer{grid-template-columns:1fr;text-align:center}.footer .brand p{margin:8px auto 0}.section-header h2,.cta h2{font-size:28px}.pricing-card .price{font-size:32px}.preview-grid{grid-template-columns:1fr 1fr}.pricing-card.popular{transform:none}.pricing-card.popular:hover{transform:translateY(-4px)}}
+        @media(max-width:480px){.hero-content h1{font-size:26px}.hero{padding:100px 16px 40px}.stats-grid{grid-template-columns:1fr 1fr;gap:16px}.stats-grid .stat-item .number{font-size:32px}.preview-grid{grid-template-columns:1fr 1fr}.btn-hero-primary,.btn-hero-secondary,.cta .btn-cta{width:100%;justify-content:center}.hero-actions{flex-direction:column}}
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="logo">✅ <span class="highlight">النظام المحاسبي</span></a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#features">المميزات</a></li>
+            <li><a href="#pricing">الأسعار</a></li>
+            <li><a href="#testimonials">آراء العملاء</a></li>
+            <li><a href="app.html" class="btn-nav-primary"><i class="fas fa-rocket"></i> ابدأ الآن</a></li>
+            <li><a href="app.html" class="btn-nav-outline"><i class="fas fa-sign-in-alt"></i> تسجيل الدخول</a></li>
+        </ul>
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badges">
+                <span class="badge primary"><i class="fas fa-fire"></i> الأكثر استخداماً</span>
+                <span class="badge success"><i class="fas fa-check-circle"></i> مجاني للاستخدام</span>
+                <span class="badge warning"><i class="fas fa-star"></i> تقييم 4.9</span>
+            </div>
+            <h1>نظام محاسبي متكامل<br><span class="highlight">لإدارة أعمالك</span></h1>
+            <p>تطبيق محاسبي شامل يدير المهام، المصاريف، المديونيات، والضرائب مع تقارير ذكية وتحليل مالي متقدم.</p>
+            <div class="hero-actions">
+                <a href="app.html" class="btn-hero-primary"><i class="fas fa-rocket"></i> ابدأ الاستخدام مجاناً</a>
+                <a href="#features" class="btn-hero-secondary"><i class="fas fa-play-circle"></i> شاهد المميزات</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-preview">
+                <div class="preview-header">
+                    <span>📊 لوحة التحكم</span>
+                    <div class="dots"><span></span><span></span><span></span></div>
+                </div>
+                <div class="preview-grid">
+                    <div class="preview-card primary"><div class="number" id="previewTasks">0</div><div class="label">📋 المهام</div></div>
+                    <div class="preview-card success"><div class="number" id="previewDone">0</div><div class="label">✅ منجزة</div></div>
+                    <div class="preview-card warning"><div class="number" id="previewExpenses">0</div><div class="label">💰 مصاريف</div></div>
+                </div>
+                <div class="preview-chart">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+            <div class="floating-badge tax"><span class="number-badge" id="floatingTax">0</span><i class="fas fa-percent"></i> ضرائب مسجلة</div>
+            <div class="floating-badge income"><span class="number-badge" id="floatingIncome">0</span><i class="fas fa-chart-line"></i> إيرادات</div>
+            <div class="floating-badge users"><span class="number-badge" id="floatingUsers">0</span><i class="fas fa-users"></i> مستخدمين</div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll"><div class="number"><span class="counter" data-target="15000">0</span><span>+</span></div><div class="label">👥 مستخدم نشط</div></div>
+            <div class="stat-item animate-on-scroll"><div class="number"><span class="counter" data-target="4.9">0</span></div><div class="label">⭐ تقييم المستخدمين</div></div>
+            <div class="stat-item animate-on-scroll"><div class="number"><span class="counter" data-target="850">0</span><span>+</span></div><div class="label">🏢 شركة تثق بنا</div></div>
+            <div class="stat-item animate-on-scroll"><div class="number"><span class="counter" data-target="99.9">0</span><span>%</span></div><div class="label">📊 دقة التقارير</div></div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="section-header animate-on-scroll">
+            <h2>✨ <span class="highlight">مميزات</span> النظام المحاسبي</h2>
+            <p>كل ما تحتاجه لإدارة أعمالك المالية في مكان واحد</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card animate-on-scroll"><span class="tag popular">الأكثر استخداماً</span><div class="icon">📊</div><h3>ميزان المراجعة</h3><p>كشف كامل بجميع حساباتك مع أرصدتها المدينة والدائنة لضمان التوازن المحاسبي.</p></div>
+            <div class="feature-card animate-on-scroll"><span class="tag new">جديد</span><div class="icon">🧾</div><h3>نظام الضرائب</h3><p>إدارة ضريبة القيمة المضافة وضريبة الدخل مع تقارير مفصلة وسداد إلكتروني.</p></div>
+            <div class="feature-card animate-on-scroll"><div class="icon">💰</div><h3>إدارة المصاريف</h3><p>تسجيل وتصنيف المصاريف اليومية والشهرية مع تحليل ذكي للإنفاق.</p></div>
+            <div class="feature-card animate-on-scroll"><div class="icon">💳</div><h3>المديونيات والسلف</h3><p>تتبع المديونيات مع نظام سداد تدريجي وإدارة السلف وخصمها من المرتب.</p></div>
+            <div class="feature-card animate-on-scroll"><span class="tag popular">مميز</span><div class="icon">🤖</div><h3>تحليل الذكاء الاصطناعي</h3><p>تحليل ذكي للمصاريف مع نصائح مالية مخصصة لتحسين أدائك المالي.</p></div>
+            <div class="feature-card animate-on-scroll"><div class="icon">📈</div><h3>التقارير والتصدير</h3><p>تصدير التقارير بصيغ PDF و Excel لسهولة المشاركة والتحليل المتقدم.</p></div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="section-header animate-on-scroll">
+            <h2>💰 <span class="highlight">خطط</span> الأسعار</h2>
+            <p>اختر الخطة المناسبة لاحتياجاتك</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card animate-on-scroll">
+                <div class="plan-name">📋 مجاني</div>
+                <div class="price">0 <span>ج.م</span></div>
+                <ul class="features-list"><li><span class="check">✅</span> 15 مهمة</li><li><span class="check">✅</span> مصاريف غير محدودة</li><li><span class="check">✅</span> مديونيات غير محدودة</li><li><span class="check">✅</span> تقارير أساسية</li><li><span class="cross">❌</span> مهام متكررة</li><li><span class="cross">❌</span> AI متقدم</li></ul>
+                <a href="app.html" class="btn-pricing outline">ابدأ مجاناً</a>
+            </div>
+            <div class="pricing-card popular animate-on-scroll">
+                <div class="popular-badge">🌟 الأكثر شعبية</div>
+                <div class="plan-name">⭐ بريميوم</div>
+                <div class="price">299 <span>ج.م/شهر</span></div>
+                <ul class="features-list"><li><span class="check">✅</span> مهام غير محدودة</li><li><span class="check">✅</span> مصاريف غير محدودة</li><li><span class="check">✅</span> مهام متكررة</li><li><span class="check">✅</span> AI متقدم</li><li><span class="check">✅</span> تصدير متقدم</li><li><span class="check">✅</span> دعم فني أولوية</li></ul>
+                <a href="app.html" class="btn-pricing primary">اشترك الآن</a>
+            </div>
+            <div class="pricing-card animate-on-scroll">
+                <div class="plan-name">🏢 مؤسسي</div>
+                <div class="price">599 <span>ج.م/شهر</span></div>
+                <ul class="features-list"><li><span class="check">✅</span> كل مميزات البريميوم</li><li><span class="check">✅</span> 5 مستخدمين</li><li><span class="check">✅</span> مزامنة سحابية</li><li><span class="check">✅</span> تقارير مخصصة</li><li><span class="check">✅</span> دعم فني 24/7</li></ul>
+                <a href="app.html" class="btn-pricing outline">تواصل معنا</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials" id="testimonials">
+        <div class="section-header animate-on-scroll">
+            <h2>💬 <span class="highlight">آراء</span> العملاء</h2>
+            <p>ما يقوله المستخدمون عن تجربتهم مع النظام</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card animate-on-scroll"><div class="stars">⭐⭐⭐⭐⭐</div><div class="text">"أفضل نظام محاسبي استخدمته! سهل الاستخدام ويغطي كل احتياجاتي من مهام ومصاريف وضرائب. أنصح به بشدة."</div><div class="author"><div class="avatar">أ</div><div><div class="name">أحمد محمد</div><div class="role">محاسب قانوني</div></div></div></div>
+            <div class="testimonial-card animate-on-scroll"><div class="stars">⭐⭐⭐⭐⭐</div><div class="text">"نظام الضرائب المدمج وفر عليا وقت وجهد كبيرين. التقارير دقيقة وسهلة التصدير. أداة لا غنى عنها."</div><div class="author"><div class="avatar">س</div><div><div class="name">سارة خالد</div><div class="role">صاحبة مشروع</div></div></div></div>
+            <div class="testimonial-card animate-on-scroll"><div class="stars">⭐⭐⭐⭐⭐</div><div class="text">"بسيط، سريع، ومتكامل. إدارة المهام والمصاريف في مكان واحد مع تقارير احترافية. أوصي به بشدة."</div><div class="author"><div class="avatar">م</div><div><div class="name">محمد علي</div><div class="role">مدير مالي</div></div></div></div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <h2>🚀 ابدأ الآن مجاناً</h2>
+        <p>انضم إلى آلاف المستخدمين الذين يثقون في نظامنا المحاسبي المتكامل</p>
+        <a href="app.html" class="btn-cta"><i class="fas fa-rocket"></i> ابدأ الاستخدام مجاناً</a>
+    </section>
+
+    <footer class="footer">
+        <div class="brand"><a href="#" style="text-decoration:none;font-size:22px;font-weight:800;color:var(--text-primary);">✅ <span style="background:linear-gradient(135deg,var(--primary),var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">النظام المحاسبي</span></a><p>نظام محاسبي متكامل لإدارة المهام والمصاريف والمديونيات والضرائب مع تقارير ذكية وتحليل مالي.</p></div>
+        <div><h4>روابط سريعة</h4><ul><li><a href="#features">المميزات</a></li><li><a href="#pricing">الأسعار</a></li><li><a href="app.html">لوحة التحكم</a></li></ul></div>
+        <div><h4>الدعم</h4><ul><li><a href="#">الأسئلة الشائعة</a></li><li><a href="#">الدليل</a></li><li><a href="#">سياسة الخصوصية</a></li></ul></div>
+        <div><h4>تواصل معنا</h4><ul><li><a href="#"><i class="fas fa-envelope"></i> support@smartacc.com</a></li><li><a href="#"><i class="fas fa-phone"></i> +20 100 000 0000</a></li></ul></div>
+        <div class="footer-bottom">© 2026 النظام المحاسبي المتكامل. جميع الحقوق محفوظة.</div>
+    </footer>
+
+    <script>
+        document.getElementById('mobileMenuBtn').addEventListener('click',function(){document.getElementById('navLinks').classList.toggle('open')});
+        document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',function(e){const href=this.getAttribute('href');if(href==='#')return;e.preventDefault();const target=document.querySelector(href);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});
+        window.addEventListener('scroll',function(){document.querySelector('.navbar').style.boxShadow=window.scrollY>20?'0 4px 24px rgba(0,0,0,0.4)':'none'});
+        function animateCounters(){document.querySelectorAll('.counter').forEach(c=>{const target=parseFloat(c.dataset.target);const duration=2500;const steps=80;const stepValue=target/steps;let current=0;const isDecimal=target%1!==0;const interval=duration/steps;const timer=setInterval(()=>{current+=stepValue;if(current>=target){current=target;clearInterval(timer)}if(isDecimal){c.textContent=current.toFixed(1)}else{c.textContent=Math.round(current)}},interval)})}
+        const observer=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible')}})},{threshold:0.15});
+        document.querySelectorAll('.animate-on-scroll').forEach(el=>observer.observe(el));
+        const statsObserver=new IntersectionObserver((entries)=>{entries.forEach(entry=>{if(entry.isIntersecting){animateCounters();statsObserver.unobserve(entry.target)}})},{threshold:0.3});
+        const statsSection=document.querySelector('.stats');if(statsSection)statsObserver.observe(statsSection);
+        function updatePreviewNumbers(){
+            const tasks=Math.floor(Math.random()*200)+50;
+            const done=Math.floor(Math.random()*150)+20;
+            const expenses=Math.floor(Math.random()*50000)+10000;
+            const tax=Math.floor(Math.random()*5000)+500;
+            const income=Math.floor(Math.random()*100000)+20000;
+            const users=Math.floor(Math.random()*500)+100;
+            document.getElementById('previewTasks').textContent=tasks;
+            document.getElementById('previewDone').textContent=done;
+            document.getElementById('previewExpenses').textContent=expenses.toLocaleString();
+            document.getElementById('floatingTax').textContent=tax.toLocaleString();
+            document.getElementById('floatingIncome').textContent=income.toLocaleString();
+            document.getElementById('floatingUsers').textContent=users;
+        }
+        updatePreviewNumbers();setInterval(updatePreviewNumbers,5000);
+        console.log('✅ Landing page loaded!');
+    </script>
+</body>
+</html>
